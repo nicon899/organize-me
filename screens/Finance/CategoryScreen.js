@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, DatePickerIOS } from 'react-native';
 import CategoryItem from '../../components/Finance/CategoryItem';
 import { useSelector } from 'react-redux';
 import BookingItem from '../../components/Finance/BookingItem';
 import DatePicker from '../../components/DatePicker';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 const CategoryScreen = props => {
-    const [date, setDate] = useState(new Date());
+    const [date, setDate] = useState(props.route.params.date ? props.route.params.date : new Date());
     const [value, setValue] = useState(0);
     const [bookings, setBookings] = useState([]);
 
     const categories = useSelector(state => state.finances.categories).filter((category) => category.parentId === props.route.params.id);
-    const allBookings = useSelector(state => state.finances.bookings);
+    const allBookings = useSelector(state => state.finances.bookings).sort((booking) => date >= booking.date);
 
     useEffect(() => {
-        console.log('UseEffect');
         let val = 0;
         const filteredBookings = allBookings.filter((booking) => booking.categoryId === props.route.params.id && booking.date <= date);
         filteredBookings.forEach(booking => val += booking.value);
@@ -24,7 +24,6 @@ const CategoryScreen = props => {
             let subCatValue = 0;
             catBookings.forEach(booking => {
                 subCatValue += booking.value;
-                console.log('Booking: ' + booking.value);
             });
             cat.value = subCatValue;
             val += subCatValue;
@@ -36,7 +35,7 @@ const CategoryScreen = props => {
 
     const showCategory = (id) => {
         let category = categories.find((category) => category.id === id);
-        props.navigation.push('Category', { id: id, name: category.name });
+        props.navigation.push('Category', { id: id, name: category.name, date: date });
     }
 
     const showBooking = (id) => {
@@ -47,39 +46,35 @@ const CategoryScreen = props => {
         <View style={styles.screen}>
             <View style={styles.topBar}>
                 <View style={styles.topBarCat}>
-                    <Text>{props.route.params.name} : {value}   </Text>
+                    <Text style={{ color: 'white' }}>{props.route.params.name} : {value}   </Text>
                     <TouchableOpacity
                         style={styles.addButton}
                         onPress={() => {
                             props.navigation.navigate('CreateCategory', { categoryId: props.route.params.id })
                         }}
                     >
-                        <Text>+</Text>
+                        <Text style={{ color: 'white' }}>+</Text>
                     </TouchableOpacity>
                 </View>
             </View>
             <View style={styles.topBarDate}>
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => {
-                        setDate(new Date(date.setDate(date.getDate() - 1)));
-                    }}
-                >
-                    <Text>-</Text>
-                </TouchableOpacity>
                 <DatePicker
                     style={styles.dateInput}
                     date={date}
                     setDate={setDate}
                 />
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => {
-                        setDate(new Date(date.setDate(date.getDate() + 1)));
-                    }}
-                >
-                    <Text>+</Text>
-                </TouchableOpacity>
+                <View style={styles.topBarDateIcons}>
+                    <TouchableOpacity
+                        onPress={() => setDate(new Date())}
+                    >
+                        <MaterialCommunityIcons style={{ marginRight: '10%' }} name="timetable" size={32} color="white" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => setDate(allBookings[0] ? new Date(allBookings[0].date) : new Date())}
+                    >
+                        <MaterialCommunityIcons style={{ marginRight: '10%' }} name="timer-sand-full" size={32} color="white" />
+                    </TouchableOpacity>
+                </View>
             </View>
             <View style={styles.categoryList}>
                 <FlatList
@@ -90,29 +85,28 @@ const CategoryScreen = props => {
                     )}
                 />
             </View>
-            {
-                props.route.params.id != -1 && < View >
-                    <Text>Bookings</Text>
-                    <View style={styles.categoryList}>
-                        <FlatList
-                            data={bookings}
-                            keyExtractor={item => item.id.toString()}
-                            renderItem={itemData => (
-                                <BookingItem showBooking={(id) => showBooking(id)} id={itemData.item.id} name={itemData.item.name} value={itemData.item.value} />
-                            )}
-                        />
-                    </View>
-                    <TouchableOpacity
-                        style={styles.addButton}
-                        onPress={() => {
-                            props.navigation.navigate('CreateBooking', {
-                                categoryId: props.route.params.id, editMode: false,
-                            });
-                        }}
-                    >
-                        <Text>+</Text>
-                    </TouchableOpacity>
+            {props.route.params.id != -1 && < View >
+                <Text style={{ color: 'white' }}>Bookings</Text>
+                <View style={styles.categoryList}>
+                    <FlatList
+                        data={bookings}
+                        keyExtractor={item => item.id.toString()}
+                        renderItem={itemData => (
+                            <BookingItem showBooking={(id) => showBooking(id)} id={itemData.item.id} name={itemData.item.name} value={itemData.item.value} date={itemData.item.date} />
+                        )}
+                    />
                 </View>
+                <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => {
+                        props.navigation.navigate('CreateBooking', {
+                            categoryId: props.route.params.id, editMode: false,
+                        });
+                    }}
+                >
+                    <Text style={{ color: 'white' }}>+</Text>
+                </TouchableOpacity>
+            </View>
             }
         </View >
     );
@@ -121,6 +115,8 @@ const CategoryScreen = props => {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
+        backgroundColor: 'black',
+        color: 'white'
     },
     categoryList: {
         margin: 10,
@@ -128,7 +124,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     addButton: {
-        borderColor: 'black',
+        borderColor: 'white',
         borderWidth: 1,
         borderRadius: 15,
         width: 60,
@@ -149,7 +145,13 @@ const styles = StyleSheet.create({
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
+    },
+    topBarDateIcons: {
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        width: '25%'
     },
     topBarCat: {
         flexDirection: 'row',
@@ -162,7 +164,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'grey'
     },
     dateInput: {
-        width: '50%',
+        width: '60%',
     }
 });
 

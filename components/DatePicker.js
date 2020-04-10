@@ -4,7 +4,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
 const DatePicker = props => {
-    const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
 
 
@@ -16,12 +15,29 @@ const DatePicker = props => {
 
     return (
         <View style={[styles.datepicker, props.style]}>
-            <TouchableOpacity style={styles.btn} onPress={() => setShow(true)}>
-                <View style={{ marginRight: 15 }}>
-                    <Ionicons name="md-calendar" size={32} color="black" />
-                </View>
-                <Text>{dateText}</Text>
+            <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => {
+                    let newDate = new Date(props.date.setDate(props.date.getDate() - 1));
+                    props.setDate(newDate);
+                }}
+            >
+                <Ionicons name="ios-arrow-back" size={32} color="white" />
+            </TouchableOpacity>
 
+            <TouchableOpacity style={styles.btn} onPress={() => setShow(true)}>
+                <Ionicons style={{ marginRight: '10%' }} name="md-calendar" size={32} color="#ff000080" />
+                <Text style={{ color: 'white' }} >{dateText}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => {
+                    let newDate = new Date(props.date.setDate(props.date.getDate() + 1));
+                    props.setDate(newDate);
+                }}
+            >
+                <Ionicons name="ios-arrow-forward" size={32} color="white" />
             </TouchableOpacity>
 
             {show && (
@@ -45,13 +61,15 @@ const DatePicker = props => {
 
 const styles = StyleSheet.create({
     datepicker: {
-        borderWidth: 1,
-        borderColor: 'grey'
+        backgroundColor: 'black',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
     },
     btn: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 2
     }
 });
 

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Alert, Platform, ToastAndroid } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, Alert, Platform, ToastAndroid, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as financeActions from '../../store/actions/finances';
 import DatePicker from '../../components/DatePicker';
+import { AntDesign } from '@expo/vector-icons';
 
 const CreateBookingScreen = props => {
     const [name, setName] = useState(props.route.params.editMode ? props.route.params.name : '');
-    const [value, setValue] = useState(props.route.params.editMode ? props.route.params.value.toString() : '');
+    const [value, setValue] = useState(props.route.params.editMode ? props.route.params.value > 0 ? props.route.params.value.toString() : (props.route.params.value * -1).toString() : '');
     const [details, setDetails] = useState(props.route.params.editMode ? props.route.params.details : '');
     const [date, setDate] = useState(props.route.params.editMode ? props.route.params.date : new Date());
-    const categories = useSelector(state => state.finances.categories);
-    const accounts = useSelector(state => state.finances.accounts);
+    const [isPositive, setIsPositive] = useState(props.route.params.value > 0);
     const dispatch = useDispatch();
 
     return (
@@ -31,16 +31,26 @@ const CreateBookingScreen = props => {
                 setDate={setDate}
             />
 
-            <TextInput
-                placeholder='Value'
-                style={styles.input}
-                blurOnSubmit
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={value}
-                keyboardType='number-pad'
-                onChangeText={(input) => setValue(input)}
-            />
+            <View style={styles.valueInput}>
+                <TouchableOpacity
+                    style={{ width: '25%', alignItems: 'center' }}
+                    onPress={() => setIsPositive(!isPositive)}   >
+                    {isPositive && <AntDesign style={{ marginRight: '10%' }} name="pluscircle" size={32} color="green" />}
+                    {!isPositive && <AntDesign style={{ marginRight: '10%' }} name="minuscircle" size={32} color="red" />}
+                </TouchableOpacity>
+                <TextInput
+                    style={[styles.input, { width: '75%' }]}
+                    placeholder='Value'
+                    blurOnSubmit
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={value}
+                    keyboardType='number-pad'
+                    onChangeText={(input) => setValue(input)}
+                />
+            </View>
+
+
             <TextInput
                 placeholder='Details'
                 style={styles.input}
@@ -57,8 +67,8 @@ const CreateBookingScreen = props => {
                     if (/^[0-9]+(\.[0-9]{1,2})?$/g.test(value)) {
                         date.setHours(0, 0, 0, 0);
                         props.route.params.editMode ?
-                            dispatch(financeActions.updateBooking(props.route.params.id, name, value, details, date, props.route.params.categoryId)) :
-                            dispatch(financeActions.addBooking(name, value, details, date, props.route.params.categoryId));
+                            dispatch(financeActions.updateBooking(props.route.params.id, name, isPositive ? value : -1 * value, details, date, props.route.params.categoryId)) :
+                            dispatch(financeActions.addBooking(name, isPositive ? value : -1 * value, details, date, props.route.params.categoryId));
                         props.navigation.goBack();
                     } else {
                         switch (Platform.OS) {
@@ -98,6 +108,12 @@ const styles = StyleSheet.create({
     },
     dateInput: {
         width: '75%',
+    },
+    valueInput: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        //justifyContent: 'spa',
+        width: '75%'
     }
 });
 

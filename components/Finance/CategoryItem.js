@@ -8,7 +8,7 @@ const CategoryItem = props => {
                 props.showContent(props.item.id);
             }}
         >
-            <Text>{props.item.name} {props.item.value} €</Text>
+            <Text style={{ color: 'white' }}>{props.item.name} {props.item.value} €</Text>
         </TouchableOpacity>
     );
 };

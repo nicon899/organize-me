@@ -21,6 +21,8 @@ export default (state = initialState, action) => {
     catIndex = updatedCategories.findIndex((cat) => cat.id === id);
     let newValue = Math.round((updatedCategories[catIndex].value + value) * 100 + Number.EPSILON) / 100;
     updatedCategories[catIndex].value = newValue;
+    console.log('name: ' + updatedCategories[catIndex].name + ' value: ' + updatedCategories[catIndex].value)
+    console.log('id: ' + updatedCategories[catIndex].parentId + ' value: ' + value);
     if (updatedCategories[catIndex].parentId != -1) {
       updateCategory(updatedCategories[catIndex].parentId, value);
     }
