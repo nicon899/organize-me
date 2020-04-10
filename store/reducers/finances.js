@@ -14,19 +14,6 @@ const initialState = {
 export default (state = initialState, action) => {
   const updatedCategories = [...state.categories];
   const updatedBookings = [...state.bookings];
-  let catIndex;
-
-  //Update Category Value
-  const updateCategory = (id, value) => {
-    catIndex = updatedCategories.findIndex((cat) => cat.id === id);
-    let newValue = Math.round((updatedCategories[catIndex].value + value) * 100 + Number.EPSILON) / 100;
-    updatedCategories[catIndex].value = newValue;
-    console.log('name: ' + updatedCategories[catIndex].name + ' value: ' + updatedCategories[catIndex].value)
-    console.log('id: ' + updatedCategories[catIndex].parentId + ' value: ' + value);
-    if (updatedCategories[catIndex].parentId != -1) {
-      updateCategory(updatedCategories[catIndex].parentId, value);
-    }
-  }
 
   switch (action.type) {
     case ADD_CATEGORY:
@@ -51,8 +38,6 @@ export default (state = initialState, action) => {
         action.categoryId,
       ));
 
-      updateCategory(action.categoryId, action.value);
-
       return {
         ...state,
         bookings: updatedBookings,
@@ -61,11 +46,7 @@ export default (state = initialState, action) => {
 
     case UPDATE_BOOKING:
       const oldBookingIndex = updatedBookings.findIndex((book) => book.id === action.id);
-
-      //Update Category Value
-      updateCategory(updatedBookings[oldBookingIndex].categoryId, -1 * updatedBookings[oldBookingIndex].value);
-      updateCategory(action.categoryId, action.value);
-
+      
       updatedBookings[oldBookingIndex].name = action.name;
       updatedBookings[oldBookingIndex].value = action.value;
       updatedBookings[oldBookingIndex].details = action.details;

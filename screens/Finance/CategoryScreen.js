@@ -11,6 +11,7 @@ const CategoryScreen = props => {
     const [value, setValue] = useState(0);
     const [bookings, setBookings] = useState([]);
 
+    const allCategories = useSelector(state => state.finances.categories);
     const categories = useSelector(state => state.finances.categories).filter((category) => category.parentId === props.route.params.id);
     const allBookings = useSelector(state => state.finances.bookings).sort((booking) => date >= booking.date);
 
@@ -19,19 +20,37 @@ const CategoryScreen = props => {
         const filteredBookings = allBookings.filter((booking) => booking.categoryId === props.route.params.id && booking.date <= date);
         filteredBookings.forEach(booking => val += booking.value);
 
-        categories.forEach(cat => {
+        allCategories.forEach(cat => {
             const catBookings = allBookings.filter((booking) => booking.categoryId === cat.id && booking.date <= date);
             let subCatValue = 0;
             catBookings.forEach(booking => {
                 subCatValue += booking.value;
             });
-            cat.value = subCatValue;
-            val += subCatValue;
+            cat.value = Math.round((subCatValue) * 100 + Number.EPSILON) / 100;
         });
 
+        const setCatValue = (id) => {
+            console.log(id);
+            const subCats = allCategories.filter((cat) => cat.parentId === id);
+            if (subCats.length > 0) {
+                let subCatValueTotal = 0;
+                subCats.forEach((cat) => {
+                    setCatValue(cat.id);
+                    subCatValueTotal += cat.value;
+                });
+                const parentCat = allCategories.find((cat) => cat.id === id);
+                if (parentCat) {
+                    parentCat.value += subCatValueTotal;
+                }
+            }
+        }
+        setCatValue(-1);
+        categories.forEach((cat) => {
+            val += cat.value;
+        });
         setBookings(filteredBookings);
         setValue(val);
-    }, [date, allBookings]);
+    }, [date, allBookings, allCategories]);
 
     const showCategory = (id) => {
         let category = categories.find((category) => category.id === id);
