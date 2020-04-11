@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, DatePickerIOS } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, BackHandler } from 'react-native';
 import CategoryItem from '../../components/Finance/CategoryItem';
 import { useSelector } from 'react-redux';
 import BookingItem from '../../components/Finance/BookingItem';
@@ -30,7 +30,6 @@ const CategoryScreen = props => {
         });
 
         const setCatValue = (id) => {
-            console.log(id);
             const subCats = allCategories.filter((cat) => cat.parentId === id);
             if (subCats.length > 0) {
                 let subCatValueTotal = 0;
