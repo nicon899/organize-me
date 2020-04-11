@@ -3,6 +3,8 @@ import {
   ADD_BOOKING,
   UPDATE_BOOKING,
   SET_FINANCES,
+  DELETE_BOOKING,
+  DELETE_CATEGORY,
 } from '../actions/finances';
 import Category from '../../models/category';
 import Booking from '../../models/booking';
@@ -35,6 +37,11 @@ export default (state = initialState, action) => {
         ...state,
         categories: updatedCategories
       };
+    case DELETE_CATEGORY:
+      return {
+        ...state,
+        categories: [...state.categories].filter((cat) => cat.id != action.id)
+      };
     case ADD_BOOKING:
       updatedBookings.push(new Booking(
         action.id,
@@ -50,6 +57,12 @@ export default (state = initialState, action) => {
         bookings: updatedBookings,
         categories: updatedCategories
       };
+
+    case DELETE_BOOKING:
+      return {
+        ...state,
+        bookings: [...state.bookings].filter((booking) => booking.id != action.id)
+      }
 
     case UPDATE_BOOKING:
       const oldBookingIndex = updatedBookings.findIndex((book) => book.id === action.id);

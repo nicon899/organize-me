@@ -1,10 +1,15 @@
 import Category from '../../models/category';
 import Booking from '../../models/booking';
+import { useSelector } from 'react-redux';
 
 export const ADD_CATEGORY = 'ADD_CATEGORY';
+export const DELETE_CATEGORY = 'DELETE_CATEGORY'
 export const ADD_BOOKING = 'ADD_BOOKING';
+export const DELETE_BOOKING = 'DELETE_BOOKING';
 export const UPDATE_BOOKING = 'UPDATE_BOOKING';
 export const SET_FINANCES = 'SET_FINANCES';
+
+
 
 const USERNAME = 'Nico';
 
@@ -37,6 +42,7 @@ export const fetchFinanceData = () => {
                 )
             });
         });
+
         dispatch({
             type: SET_FINANCES,
             categories: categories,
@@ -44,7 +50,6 @@ export const fetchFinanceData = () => {
         });
     }
 }
-
 
 export const addCategory = (name, parentId) => {
     return dispatch => {
@@ -66,6 +71,58 @@ export const addCategory = (name, parentId) => {
                 id: data.key,
                 name: name,
                 parentId: parentId
+            });
+        }).catch((error) => {
+            //error callback
+        });
+    };
+}
+
+export const deleteCategory = (id, categories, bookings) => {
+    return dispatch => {
+        const catbookings = bookings.filter((booking) => booking.categoryId === id);
+        catbookings.forEach((booking) => {
+            dispatch(deleteBooking(booking.id));
+        })
+
+        const catCats = categories.filter((cat) => cat.parentId === id);
+        catCats.forEach((cat) => {
+            dispatch(deleteCategory(cat.id, categories, bookings));
+        })
+
+        const firebase = require("firebase");
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                databaseURL: "https://organize-me-private.firebaseio.com/",
+                projectId: "organize-me-private",
+            });
+        }
+        firebase.database().ref(`${USERNAME}/Finance/Categories/${id}`).remove().then((data) => {
+            //success callback
+            dispatch({
+                type: DELETE_CATEGORY,
+                id: id,
+            });
+        }).catch((error) => {
+            //error callback
+        });
+    };
+}
+
+export const deleteBooking = (id) => {
+    return dispatch => {
+        const firebase = require("firebase");
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                databaseURL: "https://organize-me-private.firebaseio.com/",
+                projectId: "organize-me-private",
+            });
+        }
+        firebase.database().ref(`${USERNAME}/Finance/Bookings/${id}`).remove().then((data) => {
+            //success callback
+            dispatch({
+                type: DELETE_BOOKING,
+                id: id,
             });
         }).catch((error) => {
             //error callback
@@ -104,7 +161,6 @@ export const addBooking = (name, value, details, date, categoryId) => {
             //error callback
         });
     };
-
 };
 
 export const updateBooking = (id, name, value, details, date, categoryId) => {
@@ -116,7 +172,6 @@ export const updateBooking = (id, name, value, details, date, categoryId) => {
                 projectId: "organize-me-private",
             });
         }
-
         firebase.database().ref(`${USERNAME}/Finance/Bookings/${id}`).set({
             name,
             value,

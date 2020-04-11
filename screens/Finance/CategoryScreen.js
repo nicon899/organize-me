@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import CategoryItem from '../../components/Finance/CategoryItem';
 import { useSelector } from 'react-redux';
 import BookingItem from '../../components/Finance/BookingItem';
 import DatePicker from '../../components/DatePicker';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const CategoryScreen = props => {
-    const [date, setDate] = useState(props.route.params.date ? props.route.params.date : new Date());
+    const [date, setDate] = useState(props.route.params.date ? new Date(props.route.params.date) : new Date());
     const [value, setValue] = useState(0);
     const [bookings, setBookings] = useState([]);
 
@@ -53,7 +53,7 @@ const CategoryScreen = props => {
 
     const showCategory = (id) => {
         let category = categories.find((category) => category.id === id);
-        props.navigation.push('Category', { id: id, name: category.name, date: date });
+        props.navigation.push('Category', { id: id, name: category.name, date: date.toString() });
     }
 
     const showBooking = (id) => {
@@ -65,6 +65,13 @@ const CategoryScreen = props => {
             <View style={styles.topBar}>
                 <View style={styles.topBarCat}>
                     <Text style={{ color: 'white' }}>{props.route.params.name} : {value}   </Text>
+                    <TouchableOpacity
+                        onPress={() => {
+                            props.navigation.navigate('EditCategory', { categoryId: props.route.params.id})
+                        }}
+                    >
+                        <MaterialCommunityIcons style={{ marginRight: '10%' }} name="lead-pencil" size={28} color="white" />
+                    </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.addButton}
                         onPress={() => {

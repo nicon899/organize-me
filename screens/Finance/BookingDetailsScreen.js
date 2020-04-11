@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux';
+
+import * as financeActions from '../../store/actions/finances';
 
 const BookingDetailScreen = props => {
     const booking = useSelector(state => state.finances.bookings).find((booking) => booking.id === props.route.params.id);
+    const dispatch = useDispatch();
+
+    if(!booking){
+        return(<Text>Booking gelöscht!</Text>);
+    }
 
     return (
         <View style={styles.screen}>
@@ -16,9 +23,17 @@ const BookingDetailScreen = props => {
                         name: booking.name,
                         id: booking.id,
                         value: booking.value,
-                        date: booking.date,
+                        date: booking.date.toString(),
                         details: booking.details
                     });
+                }}
+            />
+            <Button
+                title="Delete"
+                onPress={() => {
+                    props.navigation.goBack();
+                    dispatch(financeActions.deleteBooking(props.route.params.id));
+
                 }}
             />
             <Text>Name: {booking.name}</Text>

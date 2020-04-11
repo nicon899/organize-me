@@ -6,10 +6,13 @@ import DatePicker from '../../components/DatePicker';
 import { AntDesign } from '@expo/vector-icons';
 
 const CreateBookingScreen = props => {
+
+    console.log(props.route.params.date);
+
     const [name, setName] = useState(props.route.params.editMode ? props.route.params.name : '');
     const [value, setValue] = useState(props.route.params.editMode ? props.route.params.value > 0 ? props.route.params.value.toString() : (props.route.params.value * -1).toString() : '');
     const [details, setDetails] = useState(props.route.params.editMode ? props.route.params.details : '');
-    const [date, setDate] = useState(props.route.params.editMode ? props.route.params.date : new Date());
+    const [date, setDate] = useState(props.route.params.editMode ? new Date(props.route.params.date) : new Date());
     const [isPositive, setIsPositive] = useState(props.route.params.value > 0);
     const dispatch = useDispatch();
 
