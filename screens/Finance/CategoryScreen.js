@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import BookingItem from '../../components/Finance/BookingItem';
 import DatePicker from '../../components/DatePicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Category from '../../models/category';
 
 const CategoryScreen = props => {
     const [date, setDate] = useState(props.route.params.date ? new Date(props.route.params.date) : new Date());
@@ -12,7 +13,7 @@ const CategoryScreen = props => {
     const [bookings, setBookings] = useState([]);
 
     const allCategories = useSelector(state => state.finances.categories);
-    const categories = useSelector(state => state.finances.categories).filter((category) => category.parentId === props.route.params.id);
+    const categories = useSelector(state => state.finances.categories).filter((category) => category.parentId === props.route.params.id).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0);
     const allBookings = useSelector(state => state.finances.bookings).sort((booking) => date >= booking.date);
 
     useEffect(() => {
@@ -67,7 +68,7 @@ const CategoryScreen = props => {
                     <Text style={{ color: 'white' }}>{props.route.params.name} : {value}   </Text>
                     <TouchableOpacity
                         onPress={() => {
-                            props.navigation.navigate('EditCategory', { categoryId: props.route.params.id})
+                            props.navigation.navigate('EditCategory', { categoryId: props.route.params.id, name: props.route.params.name })
                         }}
                     >
                         <MaterialCommunityIcons style={{ marginRight: '10%' }} name="lead-pencil" size={28} color="white" />
@@ -75,7 +76,7 @@ const CategoryScreen = props => {
                     <TouchableOpacity
                         style={styles.addButton}
                         onPress={() => {
-                            props.navigation.navigate('CreateCategory', { categoryId: props.route.params.id })
+                            props.navigation.navigate('CreateCategory', { categoryId: props.route.params.id, index: categories.length })
                         }}
                     >
                         <Text style={{ color: 'white' }}>+</Text>

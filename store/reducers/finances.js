@@ -1,6 +1,8 @@
 import {
   ADD_CATEGORY,
   ADD_BOOKING,
+  UPDATE_CATEGORY_INDEX,
+  UPDATE_CATEGORY_NAME,
   UPDATE_BOOKING,
   SET_FINANCES,
   DELETE_BOOKING,
@@ -30,6 +32,7 @@ export default (state = initialState, action) => {
       updatedCategories.push(new Category(
         action.id,
         action.name,
+        action.index,
         action.parentId
       ));
 
@@ -78,6 +81,25 @@ export default (state = initialState, action) => {
         bookings: updatedBookings,
         categories: updatedCategories
       };
+
+    case UPDATE_CATEGORY_NAME:
+      const oldCategoryNameIndex = updatedCategories.findIndex((book) => book.id === action.id);
+      updatedCategories[oldCategoryNameIndex].name = action.name;
+      return {
+        ...state,
+        bookings: updatedBookings,
+        categories: updatedCategories
+      };
+
+    case UPDATE_CATEGORY_INDEX:
+      const oldCategoryIndexIndex = updatedCategories.findIndex((book) => book.id === action.id);
+      updatedCategories[oldCategoryIndexIndex].index = action.index;
+      return {
+        ...state,
+        bookings: updatedBookings,
+        categories: updatedCategories
+      };
+
   }
   return state;
 };

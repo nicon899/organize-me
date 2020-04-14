@@ -3,7 +3,9 @@ import Booking from '../../models/booking';
 import { useSelector } from 'react-redux';
 
 export const ADD_CATEGORY = 'ADD_CATEGORY';
-export const DELETE_CATEGORY = 'DELETE_CATEGORY'
+export const DELETE_CATEGORY = 'DELETE_CATEGORY';
+export const UPDATE_CATEGORY_NAME = 'UPDATE_CATEGORY_NAME';
+export const UPDATE_CATEGORY_INDEX = 'UPDATE_CATEGORY_INDEX';
 export const ADD_BOOKING = 'ADD_BOOKING';
 export const DELETE_BOOKING = 'DELETE_BOOKING';
 export const UPDATE_BOOKING = 'UPDATE_BOOKING';
@@ -28,7 +30,7 @@ export const fetchFinanceData = () => {
         firebase.database().ref(`${USERNAME}/Finance/Categories`).once('value', function (snapshot) {
             snapshot.forEach(function (childSnapshot) {
                 categories.push(
-                    new Category(childSnapshot.key, childSnapshot.child('name').val(), childSnapshot.child('parentId').val())
+                    new Category(childSnapshot.key, childSnapshot.child('name').val(), childSnapshot.child('index').val(), childSnapshot.child('parentId').val())
                 )
             });
         });
@@ -51,7 +53,55 @@ export const fetchFinanceData = () => {
     }
 }
 
-export const addCategory = (name, parentId) => {
+export const updateCategoryName = (id, name) => {
+    return dispatch => {
+        const firebase = require("firebase");
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                databaseURL: "https://organize-me-private.firebaseio.com/",
+                projectId: "organize-me-private",
+            });
+        }
+        firebase.database().ref(`${USERNAME}/Finance/Categories/${id}`).update({
+            name,
+        }).then((data) => {
+            //success callback
+            dispatch({
+                type: UPDATE_CATEGORY_NAME,
+                id: id,
+                name: name,
+            });
+        }).catch((error) => {
+            //error callback
+        });
+    };
+}
+
+export const updateCategoryIndex = (id, index) => {
+    return dispatch => {
+        const firebase = require("firebase");
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                databaseURL: "https://organize-me-private.firebaseio.com/",
+                projectId: "organize-me-private",
+            });
+        }
+        firebase.database().ref(`${USERNAME}/Finance/Categories/${id}`).update({
+            index,
+        }).then((data) => {
+            //success callback
+            dispatch({
+                type: UPDATE_CATEGORY_INDEX,
+                id: id,
+                index: index,
+            });
+        }).catch((error) => {
+            //error callback
+        });
+    };
+}
+
+export const addCategory = (name, index, parentId) => {
     return dispatch => {
         const firebase = require("firebase");
         if (!firebase.apps.length) {
@@ -63,6 +113,7 @@ export const addCategory = (name, parentId) => {
 
         firebase.database().ref(`${USERNAME}/Finance/Categories`).push({
             name,
+            index,
             parentId
         }).then((data) => {
             //success callback
@@ -70,6 +121,7 @@ export const addCategory = (name, parentId) => {
                 type: ADD_CATEGORY,
                 id: data.key,
                 name: name,
+                index: index,
                 parentId: parentId
             });
         }).catch((error) => {

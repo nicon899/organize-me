@@ -21,7 +21,7 @@ const CreateCategoryScreen = props => {
             <Button
                 title='OK'
                 onPress={() => {
-                    dispatch(financeActions.addCategory(name, props.route.params.categoryId));
+                    dispatch(financeActions.addCategory(name, props.route.params.index, props.route.params.categoryId));
                     props.navigation.goBack();
                 }} />
             <Button

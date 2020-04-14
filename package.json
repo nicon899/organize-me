@@ -24,6 +24,7 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-37.0.0.tar.gz",
     "react-native-date-picker": "^2.7.9",
     "react-native-datepicker": "^1.7.2",
+    "react-native-draggable-flatlist": "^2.3.2",
     "react-native-gesture-handler": "~1.6.0",
     "react-native-paper": "^3.7.0",
     "react-native-reanimated": "~1.7.0",

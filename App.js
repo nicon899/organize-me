@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
@@ -18,6 +18,7 @@ export default function App() {
     <Provider store={store}>
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.screen}>
+          <StatusBar backgroundColor="black" />
           <NavigationContainer>
             <MainNavigator />
           </NavigationContainer>
@@ -30,6 +31,6 @@ export default function App() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    //paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
   }
 });
