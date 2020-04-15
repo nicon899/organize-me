@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import CategoryItem from '../../components/Finance/CategoryItem';
 import { useSelector } from 'react-redux';
 import BookingItem from '../../components/Finance/BookingItem';
 import DatePicker from '../../components/DatePicker';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import Category from '../../models/category';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const CategoryScreen = props => {
     const [date, setDate] = useState(props.route.params.date ? new Date(props.route.params.date) : new Date());
@@ -14,7 +15,12 @@ const CategoryScreen = props => {
 
     const allCategories = useSelector(state => state.finances.categories);
     const categories = useSelector(state => state.finances.categories).filter((category) => category.parentId === props.route.params.id).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0);
-    const allBookings = useSelector(state => state.finances.bookings).sort((booking) => date >= booking.date);
+    const allBookings = useSelector(state => state.finances.bookings).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+
+    const scaleFontSize = (fontSize) => {
+        return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
+    }
+
 
     useEffect(() => {
         let val = 0;
@@ -63,26 +69,43 @@ const CategoryScreen = props => {
 
     return (
         <View style={styles.screen}>
+
             <View style={styles.topBar}>
                 <View style={styles.topBarCat}>
-                    <Text style={{ color: 'white' }}>{props.route.params.name} : {value}   </Text>
+                    <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold' }}>{props.route.params.name} <Text numberOfLines={1} style={{ color: value > 0 ? 'green' : 'red' }}>{value} €</Text> </Text>
                     <TouchableOpacity
                         onPress={() => {
                             props.navigation.navigate('EditCategory', { categoryId: props.route.params.id, name: props.route.params.name })
                         }}
                     >
-                        <MaterialCommunityIcons style={{ marginRight: '10%' }} name="lead-pencil" size={28} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.addButton}
-                        onPress={() => {
-                            props.navigation.navigate('CreateCategory', { categoryId: props.route.params.id, index: categories.length })
-                        }}
-                    >
-                        <Text style={{ color: 'white' }}>+</Text>
+                        <MaterialCommunityIcons name="lead-pencil" size={scaleFontSize(32)} color="white" />
                     </TouchableOpacity>
                 </View>
             </View>
+
+            <ScrollView>
+                <View style={styles.categoryList}>
+                    <FlatList
+                        data={categories}
+                        keyExtractor={item => item.id.toString()}
+                        renderItem={itemData => (
+                            <CategoryItem showContent={(id) => showCategory(id)} item={itemData.item} />
+                        )}
+                    />
+                </View>
+
+                {props.route.params.id != -1 && < View>
+                    <FlatList
+                        data={bookings}
+                        keyExtractor={item => item.id.toString()}
+                        renderItem={itemData => (
+                            <BookingItem showBooking={(id) => showBooking(id)} id={itemData.item.id} name={itemData.item.name} value={itemData.item.value} date={itemData.item.date} />
+                        )}
+                    />
+                </View>
+                }
+            </ScrollView>
+
             <View style={styles.topBarDate}>
                 <DatePicker
                     style={styles.dateInput}
@@ -93,47 +116,25 @@ const CategoryScreen = props => {
                     <TouchableOpacity
                         onPress={() => setDate(new Date())}
                     >
-                        <MaterialCommunityIcons style={{ marginRight: '10%' }} name="timetable" size={32} color="white" />
+                        <MaterialCommunityIcons name="timetable" size={scaleFontSize(36)} color="white" />
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => setDate(allBookings[0] ? new Date(allBookings[0].date) : new Date())}
                     >
-                        <MaterialCommunityIcons style={{ marginRight: '10%' }} name="timer-sand-full" size={32} color="white" />
+                        <MaterialCommunityIcons name="timer-sand-full" size={scaleFontSize(36)} color="white" />
                     </TouchableOpacity>
+                    {props.route.params.id != -1 && <TouchableOpacity
+                        onPress={() => {
+                            props.navigation.navigate('CreateBooking', {
+                                categoryId: props.route.params.id, editMode: false,
+                            });
+                        }}
+                    >
+                        <MaterialCommunityIcons name="credit-card-plus" size={scaleFontSize(36)} color="#00FF00" />
+                    </TouchableOpacity>}
                 </View>
             </View>
-            <View style={styles.categoryList}>
-                <FlatList
-                    data={categories}
-                    keyExtractor={item => item.id.toString()}
-                    renderItem={itemData => (
-                        <CategoryItem showContent={(id) => showCategory(id)} item={itemData.item} />
-                    )}
-                />
-            </View>
-            {props.route.params.id != -1 && < View >
-                <Text style={{ color: 'white' }}>Bookings</Text>
-                <View style={styles.categoryList}>
-                    <FlatList
-                        data={bookings}
-                        keyExtractor={item => item.id.toString()}
-                        renderItem={itemData => (
-                            <BookingItem showBooking={(id) => showBooking(id)} id={itemData.item.id} name={itemData.item.name} value={itemData.item.value} date={itemData.item.date} />
-                        )}
-                    />
-                </View>
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => {
-                        props.navigation.navigate('CreateBooking', {
-                            categoryId: props.route.params.id, editMode: false,
-                        });
-                    }}
-                >
-                    <Text style={{ color: 'white' }}>+</Text>
-                </TouchableOpacity>
-            </View>
-            }
+
         </View >
     );
 };
@@ -143,11 +144,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'black',
         color: 'white'
-    },
-    categoryList: {
-        margin: 10,
-        padding: 10,
-        width: '100%',
     },
     addButton: {
         borderColor: 'white',
@@ -160,37 +156,52 @@ const styles = StyleSheet.create({
     },
     topBar: {
         width: '100%',
-        borderColor: 'grey',
-        borderBottomWidth: 1,
         alignItems: 'center',
         justifyContent: 'space-around',
-        padding: 10,
-        marginBottom: 10
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderColor: 'grey'
     },
     topBarDate: {
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-evenly',
+        borderColor: 'grey',
+        borderTopWidth: 1,
+        padding: 10,
     },
     topBarDateIcons: {
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
         flexDirection: 'row',
-        width: '25%'
+        width: '40%'
     },
     topBarCat: {
+        width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10,
     },
     input: {
         width: '50%',
         marginVertical: 5,
         padding: 3,
-        backgroundColor: 'grey'
+        backgroundColor: 'grey',
     },
     dateInput: {
         width: '60%',
+    },
+    bookingsheader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    categoryContainer: {
+        height: '35%'
+    }, categoryList: {
+        marginBottom: 20,
+        marginTop: 10
     }
 });
 

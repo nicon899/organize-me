@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
 const DatePicker = props => {
-    const [show, setShow] = useState(false);
 
+    const scaleFontSize = (fontSize) => {
+        return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
+    }
+
+    const [show, setShow] = useState(false);
 
     const dateText = ""
         + (props.date.getDate() < 10 ? "0" + props.date.getDate() : props.date.getDate()) + "."
         + (props.date.getMonth() < 9 ? "0" + (props.date.getMonth() + 1) : (props.date.getMonth() + 1)) + "."
         + props.date.getFullYear()
-
 
     return (
         <View style={[styles.datepicker, props.style]}>
@@ -26,8 +29,8 @@ const DatePicker = props => {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.btn} onPress={() => setShow(true)}>
-                <Ionicons style={{ marginRight: '10%' }} name="md-calendar" size={32} color="#ff000080" />
-                <Text style={{ color: 'white' }} >{dateText}</Text>
+                <Ionicons style={{ marginRight: '10%' }} name="md-calendar" size={scaleFontSize(42)} color="#295184" />
+                <Text style={{ color: 'white', fontSize: scaleFontSize(22), fontWeight: 'bold' }} >{dateText}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
