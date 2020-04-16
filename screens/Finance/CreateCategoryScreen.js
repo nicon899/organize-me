@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
 import * as financeActions from '../../store/actions/finances';
 
@@ -9,6 +9,7 @@ const CreateCategoryScreen = props => {
 
     return (
         <View style={styles.screen}>
+            <Text style={{color: 'white', marginBottom: 10, fontWeight: 'bold', fontSize: 32}}>Create Category</Text>
             <TextInput
                 placeholder='Name'
                 style={styles.input}
@@ -18,15 +19,27 @@ const CreateCategoryScreen = props => {
                 value={name}
                 onChangeText={(input) => setName(input)}
             />
-            <Button
-                title='OK'
-                onPress={() => {
-                    dispatch(financeActions.addCategory(name, props.route.params.index, props.route.params.categoryId));
-                    props.navigation.goBack();
-                }} />
-            <Button
-                title='Cancel'
-                onPress={() => { props.navigation.goBack() }} />
+            <View style={{ width: '80%', height: '10%', flexDirection: 'row', justifyContent: 'space-between', alignSelf: 'center' }}>
+                <TouchableOpacity
+                    style={{ borderWidth: 1, borderColor: 'red', borderRadius: 5, alignItems: 'center', justifyContent: 'center', padding: 15, width: '30%', height: '50%' }}
+                    onPress={() => {
+                        props.navigation.goBack();
+                    }}
+                >
+                    <Text style={{ color: 'red' }}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{ borderWidth: 1, borderColor: 'green', borderRadius: 5, alignItems: 'center', justifyContent: 'center', padding: 15, width: '30%', height: '50%' }}
+                    onPress={() => {
+                        dispatch(financeActions.addCategory(name, props.route.params.index, props.route.params.categoryId));
+                        props.navigation.goBack();
+                    }}
+                >
+                    <Text style={{ color: 'green' }}>ADD</Text>
+                </TouchableOpacity>
+            </View>
+
         </View>
     );
 };
@@ -35,14 +48,16 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor: 'black'
     },
     input: {
-        width: '50%',
-        marginVertical: 5,
+        width: '80%',
+        marginBottom: 20,
         padding: 3,
         borderColor: 'grey',
-        borderWidth: 1
+        borderWidth: 1,
+        color: 'white'
     },
 });
 

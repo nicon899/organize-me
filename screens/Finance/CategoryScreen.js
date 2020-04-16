@@ -4,9 +4,10 @@ import CategoryItem from '../../components/Finance/CategoryItem';
 import { useSelector } from 'react-redux';
 import BookingItem from '../../components/Finance/BookingItem';
 import DatePicker from '../../components/DatePicker';
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Category from '../../models/category';
 import { ScrollView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-navigation';
 
 const CategoryScreen = props => {
     const [date, setDate] = useState(props.route.params.date ? new Date(props.route.params.date) : new Date());
@@ -69,7 +70,6 @@ const CategoryScreen = props => {
 
     return (
         <View style={styles.screen}>
-
             <View style={styles.topBar}>
                 <View style={styles.topBarCat}>
                     <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold' }}>{props.route.params.name} <Text numberOfLines={1} style={{ color: value > 0 ? 'green' : 'red' }}>{value} €</Text> </Text>
@@ -84,26 +84,28 @@ const CategoryScreen = props => {
             </View>
 
             <ScrollView>
-                <View style={styles.categoryList}>
-                    <FlatList
-                        data={categories}
-                        keyExtractor={item => item.id.toString()}
-                        renderItem={itemData => (
-                            <CategoryItem showContent={(id) => showCategory(id)} item={itemData.item} />
-                        )}
-                    />
-                </View>
+                <View >
+                    <View style={styles.categoryList}>
+                        <FlatList
+                            data={categories}
+                            keyExtractor={item => item.id.toString()}
+                            renderItem={itemData => (
+                                <CategoryItem showContent={(id) => showCategory(id)} item={itemData.item} />
+                            )}
+                        />
+                    </View>
 
-                {props.route.params.id != -1 && < View>
-                    <FlatList
-                        data={bookings}
-                        keyExtractor={item => item.id.toString()}
-                        renderItem={itemData => (
-                            <BookingItem showBooking={(id) => showBooking(id)} id={itemData.item.id} name={itemData.item.name} value={itemData.item.value} date={itemData.item.date} />
-                        )}
-                    />
+                    {props.route.params.id != -1 && < View>
+                        <FlatList
+                            data={bookings}
+                            keyExtractor={item => item.id.toString()}
+                            renderItem={itemData => (
+                                <BookingItem showBooking={(id) => showBooking(id)} id={itemData.item.id} name={itemData.item.name} value={itemData.item.value} date={itemData.item.date} />
+                            )}
+                        />
+                    </View>
+                    }
                 </View>
-                }
             </ScrollView>
 
             <View style={styles.topBarDate}>
@@ -119,8 +121,15 @@ const CategoryScreen = props => {
                         <MaterialCommunityIcons name="timetable" size={scaleFontSize(36)} color="white" />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => setDate(allBookings[0] ? new Date(allBookings[0].date) : new Date())}
-                    >
+                        onPress={() => {
+                            let today = new Date();
+                            if (allBookings[0]) {
+                                let newDate = new Date(allBookings[0].date);
+                                setDate(newDate > today ? newDate : today);
+                            } else {
+                                setDate(today);
+                            }
+                        }}>
                         <MaterialCommunityIcons name="timer-sand-full" size={scaleFontSize(36)} color="white" />
                     </TouchableOpacity>
                     {props.route.params.id != -1 && <TouchableOpacity
@@ -160,7 +169,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         flexDirection: 'row',
         borderBottomWidth: 1,
-        borderColor: 'grey'
+        borderColor: 'grey',
     },
     topBarDate: {
         width: '100%',
