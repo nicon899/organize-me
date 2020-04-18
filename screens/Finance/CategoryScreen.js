@@ -4,6 +4,7 @@ import CategoryItemList from '../../components/Finance/CategoryItemList';
 import { useSelector } from 'react-redux';
 import DatePicker from '../../components/DatePicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const CategoryScreen = props => {
     const [date, setDate] = useState(new Date());
@@ -24,9 +25,14 @@ const CategoryScreen = props => {
 
     useEffect(() => {
         const backAction = () => {
+            if (!props.navigation.isFocused()) {
+                return false;
+            }
             if (selectedCategory.id === -1) {
+                console.log('back -1')
                 return false;
             } else {
+                console.log('back default')
                 setSelectedCategory(allCategories.find((category) => category.id === selectedCategory.parentId));
                 return true;
             }
@@ -36,7 +42,7 @@ const CategoryScreen = props => {
             backAction
         );
         return () => backHandler.remove();
-    }, [selectedCategory]);
+    });
 
     useEffect(() => {
         let val = 0;
@@ -98,13 +104,17 @@ const CategoryScreen = props => {
                 </View>
             </View>
 
+            <View style={{ flex: 1 }}>
                 <CategoryItemList
+                    style={{ maxHeight: '100%' }}
                     bookings={bookings}
                     categories={categories}
                     showBooking={(id) => props.navigation.push('Booking', { id: id })}
                     showCategory={(id) => setSelectedCategory(categories.find((category) => category.id === id))}
                     showBookings={selectedCategory.id != -1}
                 />
+            </View>
+
 
             <View style={styles.topBarDate}>
                 <DatePicker
@@ -144,7 +154,7 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: 'black',
-        color: 'white'
+        color: 'white',
     },
     topBar: {
         width: '100%',

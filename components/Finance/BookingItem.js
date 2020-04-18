@@ -12,7 +12,7 @@ const BookingItem = props => {
             onPress={() => {
                 props.showBooking(props.id);
             }}>
-            <View style={styles.item}>
+            <View style={[styles.item, { marginTop: props.isMarginTop ? '3%' : 0 }]}>
                 <View style={{ width: '70%', justifyContent: 'center', }}>
                     <Text numberOfLines={1} style={{ color: 'white', fontSize: scaleFontSize(24) }}>{props.name}</Text>
                     <Text numberOfLines={1} style={{ color: 'grey', fontSize: scaleFontSize(16) }}>{""
@@ -21,8 +21,8 @@ const BookingItem = props => {
                         + props.date.getFullYear()}</Text>
 
                 </View>
-                <View style={{ width: '30%', alignItems: 'flex-end'}}>
-                    <Text numberOfLines={1} style={{ color: props.value > 0 ? 'green' : 'red', fontSize: scaleFontSize(24), fontWeight: 'bold'}}>{props.value} €</Text>
+                <View style={{ width: '30%', alignItems: 'flex-end' }}>
+                    <Text numberOfLines={1} style={{ color: props.value > 0 ? 'green' : 'red', fontSize: scaleFontSize(24), fontWeight: 'bold' }}>{props.value} €</Text>
                 </View>
             </View>
         </TouchableOpacity>
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginVertical: 2,
-        paddingHorizontal: 4
+        paddingHorizontal: 4,
     }
 });
 
