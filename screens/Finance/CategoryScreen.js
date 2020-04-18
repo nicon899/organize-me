@@ -4,7 +4,6 @@ import CategoryItemList from '../../components/Finance/CategoryItemList';
 import { useSelector } from 'react-redux';
 import DatePicker from '../../components/DatePicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ScrollView } from 'react-native-gesture-handler';
 
 const CategoryScreen = props => {
     const [date, setDate] = useState(new Date());
