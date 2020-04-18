@@ -5,9 +5,7 @@ import { useSelector } from 'react-redux';
 import BookingItem from '../../components/Finance/BookingItem';
 import DatePicker from '../../components/DatePicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import Category from '../../models/category';
 import { ScrollView } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-navigation';
 
 const CategoryScreen = props => {
     const [date, setDate] = useState(props.route.params.date ? new Date(props.route.params.date) : new Date());
@@ -22,6 +20,9 @@ const CategoryScreen = props => {
         return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
     }
 
+    useEffect(() => {
+        setLatestDate();
+    }, []);
 
     useEffect(() => {
         let val = 0;
@@ -56,7 +57,7 @@ const CategoryScreen = props => {
             val += cat.value;
         });
         setBookings(filteredBookings);
-        setValue(val);
+        setValue(Math.round(val * 100 + Number.EPSILON) / 100);
     }, [date, allBookings, allCategories]);
 
     const showCategory = (id) => {
@@ -68,11 +69,22 @@ const CategoryScreen = props => {
         props.navigation.push('Booking', { id: id });
     }
 
+    const setLatestDate = () => {
+        let today = new Date();
+        if (allBookings[0]) {
+            let newDate = new Date(allBookings[0].date);
+            setDate(newDate > today ? newDate : today);
+        } else {
+            setDate(today);
+        }
+    }
+
+
     return (
         <View style={styles.screen}>
             <View style={styles.topBar}>
                 <View style={styles.topBarCat}>
-                    <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold' }}>{props.route.params.name} <Text numberOfLines={1} style={{ color: value > 0 ? 'green' : 'red' }}>{value} €</Text> </Text>
+                    <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>{props.route.params.name} <Text numberOfLines={1} style={{ color: value > 0 ? 'green' : 'red' }}>{(props.route.params.name + value).length > 20 && '\n'}{value} €</Text> </Text>
                     <TouchableOpacity
                         onPress={() => {
                             props.navigation.navigate('EditCategory', { categoryId: props.route.params.id, name: props.route.params.name })
@@ -122,13 +134,7 @@ const CategoryScreen = props => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
-                            let today = new Date();
-                            if (allBookings[0]) {
-                                let newDate = new Date(allBookings[0].date);
-                                setDate(newDate > today ? newDate : today);
-                            } else {
-                                setDate(today);
-                            }
+                            setLatestDate();
                         }}>
                         <MaterialCommunityIcons name="timer-sand-full" size={scaleFontSize(36)} color="white" />
                     </TouchableOpacity>

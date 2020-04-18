@@ -2,6 +2,7 @@
   "expo": {
     "name": "organize-me",
     "slug": "organize-me",
+    "sdkVersion": "37.0.0",
     "platforms": [
       "ios",
       "android",
@@ -24,7 +25,9 @@
     "ios": {
       "supportsTablet": true
     },
-    "description": "",
-    "githubUrl": "https://github.com/nicon899/organize-me"
+    "android": {
+      "package": "com.uNICOrn.organizeMe"
+    },
+    "description": ""
   }
 }
