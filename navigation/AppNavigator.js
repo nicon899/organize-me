@@ -1,7 +1,7 @@
 import React from 'react';
+import { Platform } from 'react-native'
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import HomeScreen from '../screens/HomeScreen';
 import CategoryScreen from '../screens/Finance/CategoryScreen';
@@ -10,15 +10,14 @@ import BookingDetailsScreen from '../screens/Finance/BookingDetailsScreen';
 import CreateBookingScreen from '../screens/Finance/CreateBookingScreen';
 import EditCategoryScreen from '../screens/Finance/EditCategoryScreen';
 
-
 const FinanceStack = createStackNavigator();
 const FinanceStackNavigator = () => {
     return (
         <FinanceStack.Navigator
             screenOptions={{
-                headerShown: false
+                headerShown: Platform.OS === 'android' ? false : true
             }}>
-            <FinanceStack.Screen name="Category" component={CategoryScreen} initialParams={{ id: -1, name: 'Finanzen' }} />
+            <FinanceStack.Screen name="Category" component={CategoryScreen} />
             <FinanceStack.Screen name="CreateCategory" component={CreateCategoryScreen} />
             <FinanceStack.Screen name="EditCategory" component={EditCategoryScreen} />
             <FinanceStack.Screen name="Booking" component={BookingDetailsScreen} />

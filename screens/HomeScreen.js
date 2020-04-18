@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 import * as financeActions from '../store/actions/finances';
 
 const HomeScreen = props => {
-
     const dispatch = useDispatch();
     useEffect(() => {
         console.log('dispatch: useEffecht')

@@ -16,7 +16,7 @@ export const SET_FINANCES = 'SET_FINANCES';
 const USERNAME = 'Nico';
 
 export const fetchFinanceData = () => {
-    return dispatch => {
+    return async dispatch => {
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -24,7 +24,7 @@ export const fetchFinanceData = () => {
                 projectId: "organize-me-private",
             });
         }
-        const categories = [];
+        const categories = [new Category(-1, 'Finanzen', 0, 0)];
         const bookings = [];
 
         firebase.database().ref(`${USERNAME}/Finance/Categories`).once('value', function (snapshot) {

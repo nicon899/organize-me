@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
-import CategoryItem from '../../components/Finance/CategoryItem';
+import { View, Text, StyleSheet, BackHandler, TouchableOpacity, Dimensions } from 'react-native';
+import CategoryItemList from '../../components/Finance/CategoryItemList';
 import { useSelector } from 'react-redux';
-import BookingItem from '../../components/Finance/BookingItem';
 import DatePicker from '../../components/DatePicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ScrollView } from 'react-native-gesture-handler';
 
 const CategoryScreen = props => {
-    const [date, setDate] = useState(props.route.params.date ? new Date(props.route.params.date) : new Date());
+    const [date, setDate] = useState(new Date());
     const [value, setValue] = useState(0);
     const [bookings, setBookings] = useState([]);
-
     const allCategories = useSelector(state => state.finances.categories);
-    const categories = useSelector(state => state.finances.categories).filter((category) => category.parentId === props.route.params.id).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0);
+    const [selectedCategory, setSelectedCategory] = useState(allCategories[0]);
+    const categories = useSelector(state => state.finances.categories).filter((category) => category.parentId === selectedCategory.id).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0);
     const allBookings = useSelector(state => state.finances.bookings).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
 
     const scaleFontSize = (fontSize) => {
@@ -25,10 +23,25 @@ const CategoryScreen = props => {
     }, []);
 
     useEffect(() => {
-        let val = 0;
-        const filteredBookings = allBookings.filter((booking) => booking.categoryId === props.route.params.id && booking.date <= date);
-        filteredBookings.forEach(booking => val += booking.value);
+        const backAction = () => {
+            if (selectedCategory.id === -1) {
+                return false;
+            } else {
+                setSelectedCategory(allCategories.find((category) => category.id === selectedCategory.parentId));
+                return true;
+            }
+        };
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+        return () => backHandler.remove();
+    }, [selectedCategory]);
 
+    useEffect(() => {
+        let val = 0;
+        const filteredBookings = allBookings.filter((booking) => booking.categoryId === selectedCategory.id && booking.date <= date);
+        filteredBookings.forEach(booking => val += booking.value);
         allCategories.forEach(cat => {
             const catBookings = allBookings.filter((booking) => booking.categoryId === cat.id && booking.date <= date);
             let subCatValue = 0;
@@ -58,16 +71,7 @@ const CategoryScreen = props => {
         });
         setBookings(filteredBookings);
         setValue(Math.round(val * 100 + Number.EPSILON) / 100);
-    }, [date, allBookings, allCategories]);
-
-    const showCategory = (id) => {
-        let category = categories.find((category) => category.id === id);
-        props.navigation.push('Category', { id: id, name: category.name, date: date.toString() });
-    }
-
-    const showBooking = (id) => {
-        props.navigation.push('Booking', { id: id });
-    }
+    }, [date, allBookings, allCategories, selectedCategory]);
 
     const setLatestDate = () => {
         let today = new Date();
@@ -79,15 +83,14 @@ const CategoryScreen = props => {
         }
     }
 
-
     return (
         <View style={styles.screen}>
             <View style={styles.topBar}>
                 <View style={styles.topBarCat}>
-                    <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>{props.route.params.name} <Text numberOfLines={1} style={{ color: value > 0 ? 'green' : 'red' }}>{(props.route.params.name + value).length > 20 && '\n'}{value} €</Text> </Text>
+                    <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>{selectedCategory.name} <Text numberOfLines={1} style={{ color: value > 0 ? 'green' : 'red' }}>{(selectedCategory.name + value).length > 20 && '\n'}{value} €</Text> </Text>
                     <TouchableOpacity
                         onPress={() => {
-                            props.navigation.navigate('EditCategory', { categoryId: props.route.params.id, name: props.route.params.name })
+                            props.navigation.navigate('EditCategory', { categoryId: selectedCategory.id, name: selectedCategory.name })
                         }}
                     >
                         <MaterialCommunityIcons name="lead-pencil" size={scaleFontSize(32)} color="white" />
@@ -95,30 +98,13 @@ const CategoryScreen = props => {
                 </View>
             </View>
 
-            <ScrollView>
-                <View >
-                    <View style={styles.categoryList}>
-                        <FlatList
-                            data={categories}
-                            keyExtractor={item => item.id.toString()}
-                            renderItem={itemData => (
-                                <CategoryItem showContent={(id) => showCategory(id)} item={itemData.item} />
-                            )}
-                        />
-                    </View>
-
-                    {props.route.params.id != -1 && < View>
-                        <FlatList
-                            data={bookings}
-                            keyExtractor={item => item.id.toString()}
-                            renderItem={itemData => (
-                                <BookingItem showBooking={(id) => showBooking(id)} id={itemData.item.id} name={itemData.item.name} value={itemData.item.value} date={itemData.item.date} />
-                            )}
-                        />
-                    </View>
-                    }
-                </View>
-            </ScrollView>
+                <CategoryItemList
+                    bookings={bookings}
+                    categories={categories}
+                    showBooking={(id) => props.navigation.push('Booking', { id: id })}
+                    showCategory={(id) => setSelectedCategory(categories.find((category) => category.id === id))}
+                    showBookings={selectedCategory.id != -1}
+                />
 
             <View style={styles.topBarDate}>
                 <DatePicker
@@ -138,10 +124,10 @@ const CategoryScreen = props => {
                         }}>
                         <MaterialCommunityIcons name="timer-sand-full" size={scaleFontSize(36)} color="white" />
                     </TouchableOpacity>
-                    {props.route.params.id != -1 && <TouchableOpacity
+                    {selectedCategory.id != -1 && <TouchableOpacity
                         onPress={() => {
                             props.navigation.navigate('CreateBooking', {
-                                categoryId: props.route.params.id, editMode: false,
+                                categoryId: selectedCategory.id, editMode: false,
                             });
                         }}
                     >
@@ -159,15 +145,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'black',
         color: 'white'
-    },
-    addButton: {
-        borderColor: 'white',
-        borderWidth: 1,
-        borderRadius: 15,
-        width: 60,
-        height: 30,
-        alignItems: 'center',
-        justifyContent: 'center'
     },
     topBar: {
         width: '100%',
@@ -198,25 +175,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 10,
     },
-    input: {
-        width: '50%',
-        marginVertical: 5,
-        padding: 3,
-        backgroundColor: 'grey',
-    },
     dateInput: {
         width: '60%',
-    },
-    bookingsheader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    categoryContainer: {
-        height: '35%'
-    }, categoryList: {
-        marginBottom: 20,
-        marginTop: 10
     }
 });
 
