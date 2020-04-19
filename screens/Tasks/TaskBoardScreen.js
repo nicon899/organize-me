@@ -19,12 +19,6 @@ const TaskBoardScreen = props => {
     const [showTasksDone, setShowTasksDone] = useState(false);
     const [showFilterModal, setShowFilterModal] = useState(false);
 
-    if (taskBoards.length <= 0) {
-        props.navigation.navigate('CreateTaskBoard', {
-            id: taskBoard.id, editMode: false,
-        });
-    }
-
     const firebase = require("firebase");
     if (!firebase.apps.length) {
         firebase.initializeApp({
@@ -62,6 +56,7 @@ const TaskBoardScreen = props => {
     }
 
     const loadTasks = () => {
+        console.log('loadTasks');
         firebase.database().ref(`${USERNAME}/TaskManager/${taskBoard.id}/Tasks`).once('value', function (snapshot) {
             const loadedTasks = [];
             snapshot.forEach(function (childSnapshot) {
@@ -70,7 +65,7 @@ const TaskBoardScreen = props => {
                 )
             });
             setTasks(loadedTasks);
-        });
+        })
     }
 
     const editTask = (task) => {
@@ -95,6 +90,10 @@ const TaskBoardScreen = props => {
             setTaskBoards(loadedTaskBoards);
             if (loadedTaskBoards.length > 0) {
                 setTaskBoard(loadedTaskBoards[0]);
+            } else {
+                props.navigation.navigate('CreateTaskBoard', {
+                    id: taskBoard.id, editMode: false,
+                });
             }
         });
         return () => {
@@ -150,7 +149,6 @@ const TaskBoardScreen = props => {
             </Modal>
 
             <View style={styles.header}>
-
                 {taskBoards.length > 0 && <MyPicker
                     style={styles.picker}
                     data={taskBoards}
@@ -158,7 +156,12 @@ const TaskBoardScreen = props => {
                     onValueChange={(taskBoard) => { setTaskBoard(taskBoard); }}
                     createBoard={() => {
                         props.navigation.navigate('CreateTaskBoard', {
-                            id: taskBoard.id, editMode: false,
+                            editMode: false,
+                        });
+                    }}
+                    editTaskBoard={(taskBoard) => {
+                        props.navigation.navigate('CreateTaskBoard', {
+                            id: taskBoard.id, name: taskBoard.name, editMode: true,
                         });
                     }}
                 />}

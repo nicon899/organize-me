@@ -20,6 +20,15 @@ const Picker = props => {
                     <TextItem fontSize={42} style={{ color: 'white' }}>{selectedItem.name}</TextItem>
                 </TouchableOpacity>
 
+                {showList && <TouchableOpacity
+                    style={{ marginLeft: 5 }}
+                    onPress={() => {
+                        props.editTaskBoard(selectedItem);
+                    }}
+                >
+                    <MaterialCommunityIcons name="lead-pencil" size={28} color="white" />
+                </TouchableOpacity>}
+
             </View>
             {showList && <View style={[styles.list, { borderWidth: showList ? 1 : 0 }]}>
 
@@ -34,15 +43,15 @@ const Picker = props => {
                         >
                             <TextItem fontSize={20} style={{ color: 'white' }}>{item.name}</TextItem>
                         </TouchableOpacity>)}
-                        <TouchableOpacity
-                         style={{ width: '100%', flexDirection: 'row', alignItems: 'center' }}
-                            onPress={() => {
-                                props.createBoard();
-                            }}
-                        >
-                            <TextItem fontSize={20} style={{ color: 'white' }}>New Taskboard</TextItem>
-                            <MaterialCommunityIcons name="plus" size={36} color="green" />
-                        </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{ width: '100%', flexDirection: 'row', alignItems: 'center' }}
+                        onPress={() => {
+                            props.createBoard();
+                        }}
+                    >
+                        <TextItem fontSize={20} style={{ color: 'white' }}>New Taskboard</TextItem>
+                        <MaterialCommunityIcons name="plus" size={36} color="green" />
+                    </TouchableOpacity>
                 </ScrollView>
 
 
