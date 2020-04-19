@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import DatePicker from '../../components/DatePicker';
 import TextItem from '../../components/TextItem';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const USERNAME = 'Nico';
 
@@ -11,9 +12,30 @@ const CreateTaskScreen = props => {
     const [date, setDate] = useState(props.route.params.editMode ? new Date(props.route.params.date) : new Date());
     const [deadline, setDeadline] = useState(props.route.params.editMode ? new Date(props.route.params.deadline) : new Date());
 
+    const deleteTask = () => {
+        const firebase = require("firebase");
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                databaseURL: "https://organize-me-private.firebaseio.com/",
+                projectId: "organize-me-private",
+            });
+        }
+        firebase.database().ref(`${USERNAME}/TaskManager/${props.route.params.id}/Tasks/${props.route.params.taskId}`).remove();
+        props.navigation.goBack();
+    };
+
     return (
         <View style={styles.screen}>
-            <TextItem fontSize={48} style={{ color: 'white', marginHorizontal: '12.5%', width: '75%', marginBottom: 10, fontWeight: 'bold', marginBottom: 50 }}>New Task</TextItem>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 50, }}
+            >
+                <TextItem fontSize={48} style={{ color: 'white', fontWeight: 'bold', }}>{props.route.params.editMode ? 'Edit Task' : 'New Task'}</TextItem>
+
+                {props.route.params.editMode && <TouchableOpacity
+                    onPress={() => deleteTask()}            >
+                    <MaterialCommunityIcons style={{ marginLeft: 8 }} name="delete" size={36} color="red" />
+                </TouchableOpacity>}
+            </View>
 
             <TextInput
                 placeholder='Name'
@@ -54,7 +76,6 @@ const CreateTaskScreen = props => {
                     onPress={() => {
                         date.setHours(0, 0, 0, 0);
                         deadline.setHours(0, 0, 0, 0);
-
                         const firebase = require("firebase");
                         if (!firebase.apps.length) {
                             firebase.initializeApp({
@@ -62,17 +83,21 @@ const CreateTaskScreen = props => {
                                 projectId: "organize-me-private",
                             });
                         }
-
-                        firebase.database().ref(`${USERNAME}/TaskManager/${props.route.params.id}/Tasks`).push({
-                            name,
-                            date: date.toString(),
-                            deadline: deadline.toString(),
-                            status: 'toDo'
-                        }).then((data) => {
-                            //success callback
-                        }).catch((error) => {
-                            //error callback
-                        });
+                        if (props.route.params.editMode) {
+                            firebase.database().ref(`${USERNAME}/TaskManager/${props.route.params.id}/Tasks/${props.route.params.taskId}`).update({
+                                name,
+                                date: date.toString(),
+                                deadline: deadline.toString(),
+                                status: 'Open'
+                            });
+                        } else {
+                            firebase.database().ref(`${USERNAME}/TaskManager/${props.route.params.id}/Tasks`).push({
+                                name,
+                                date: date.toString(),
+                                deadline: deadline.toString(),
+                                status: 'Open'
+                            });
+                        }
                         props.navigation.goBack();
                     }}
                 >
