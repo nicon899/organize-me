@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Dimensions, Platform } from 'react-native';
 import TextItem from '../../components/TextItem';
-import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const USERNAME = 'Nico';
 
@@ -10,6 +10,16 @@ const TaskItem = props => {
     const scaleFontSize = (fontSize) => {
         return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
     }
+
+    const days = [
+        'So',
+        'Mo',
+        'Di',
+        'Mi',
+        'Do',
+        'Fr',
+        'Sa'
+    ];
 
     const changeStatus = () => {
         let newStatus;
@@ -26,32 +36,38 @@ const TaskItem = props => {
         });
     }
 
+    const getDateString = (date) => {
+        return ""
+            + (date.getDate() < 10 ? "0" + date.getDate() : date.getDate()) + "."
+            + (date.getMonth() < 9 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1)) + "."
+            + date.getFullYear()
+    };
+
     return (
-        <TouchableOpacity
+        <TouchableWithoutFeedback
             onLongPress={() => props.editTask(props.task)}
         >
             <View style={styles.screen}>
                 <TouchableOpacity
                     style={{ marginHorizontal: 10 }}
-                    onPress={() => changeStatus()}>
+                    onLongPress={() => changeStatus()}>
                     {props.task.status === 'Open' && <FontAwesome5 name="tasks" size={scaleFontSize(48)} color="#0080FF" />}
                     {props.task.status === 'InProgress' && <FontAwesome5 name="tasks" size={scaleFontSize(48)} color="yellow" />}
                     {props.task.status === 'Done' && <FontAwesome5 name="tasks" size={scaleFontSize(48)} color="green" />}
                 </TouchableOpacity>
                 <TextItem fontSize={20} style={{ color: 'white', flex: 1 }}>{props.task.name}</TextItem>
                 <View style={{ alignItems: 'center', justifyContent: 'center', marginHorizontal: 4 }}>
-                    <TextItem fontSize={18} style={{ color: 'grey' }}>{""
-                        + (props.task.date.getDate() < 10 ? "0" + props.task.date.getDate() : props.task.date.getDate()) + "."
-                        + (props.task.date.getMonth() < 9 ? "0" + (props.task.date.getMonth() + 1) : (props.task.date.getMonth() + 1)) + "."
-                        + props.task.date.getFullYear()}</TextItem>
-
-                    <TextItem fontSize={18} style={{ color: 'red' }}>{""
-                        + (props.task.deadline.getDate() < 10 ? "0" + props.task.deadline.getDate() : props.task.deadline.getDate()) + "."
-                        + (props.task.deadline.getMonth() < 9 ? "0" + (props.task.deadline.getMonth() + 1) : (props.task.deadline.getMonth() + 1)) + "."
-                        + props.task.deadline.getFullYear()}</TextItem>
+                    <TextItem fontSize={16} style={{ color: 'grey', width: '100%', fontWeight: 'bold' }}>
+                        {props.showDayOfWeek && <TextItem fontSize={16} style={{ color: 'grey', width: '100%', fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace', fontWeight: 'bold' }}>{days[props.task.date.getDay()] + " "}</TextItem>}
+                        {getDateString(props.task.date)}
+                    </TextItem>
+                    <TextItem fontSize={16} style={{ color: 'red', width: '100%'}}>
+                        {props.showDayOfWeek && <TextItem fontSize={16} style={{ color: 'grey', width: '100%', fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace'}}>{days[props.task.deadline.getDay()] + " "}</TextItem>}
+                        {getDateString(props.task.deadline)}
+                    </TextItem>
                 </View>
             </View>
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
     );
 };
 

@@ -6,7 +6,6 @@ import * as financeActions from '../store/actions/finances';
 const HomeScreen = props => {
     const dispatch = useDispatch();
     useEffect(() => {
-        console.log('dispatch: useEffecht')
         dispatch(financeActions.fetchFinanceData());
     }, [dispatch]);
 

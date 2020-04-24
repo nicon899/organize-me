@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Picker, CheckBox, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Picker, Modal, Platform } from 'react-native';
 import Task from '../../models/task';
 import TaskBoard from '../../models/taskboard';
 import TaskItem from '../../components/Tasks/TaskItem';
 import TextItem from '../../components/TextItem';
 import MyPicker from '../../components/Tasks/TaskBoardPicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { FlatList } from 'react-native-gesture-handler';
 
 const USERNAME = 'Nico';
 
@@ -17,7 +18,9 @@ const TaskBoardScreen = props => {
     const [showTasksOpen, setShowTasksOpen] = useState(true);
     const [showTasksInProgress, setShowTasksInProgress] = useState(true);
     const [showTasksDone, setShowTasksDone] = useState(false);
+    const [showDayOfWeek, setShowDayOfWeek] = useState(true);
     const [showFilterModal, setShowFilterModal] = useState(false);
+    const [loadedFinish, setLoadedFinish] = useState(false);
 
     const firebase = require("firebase");
     if (!firebase.apps.length) {
@@ -27,20 +30,44 @@ const TaskBoardScreen = props => {
         });
     }
 
+    const sortByNameASC = (a, b) => {
+        return a.name > b.name ? 1 : a.name === b.name ? 0 : -1;
+    }
+
+    const sortByNameDESC = (a, b) => {
+        return a.name < b.name ? 1 : a.name === b.name ? 0 : -1;
+    }
+
+    const sortByDateASC = (a, b) => {
+        return a.date > b.date ? 1 : a.date < b.date ? -1 : a.deadline > b.deadline ? 1 : a.deadline < b.deadline ? -1 : 0;
+    }
+
+    const sortByDateDESC = (a, b) => {
+        return a.date < b.date ? 1 : a.date > b.date ? -1 : a.deadline < b.deadline ? 1 : a.deadline > b.deadline ? -1 : 0;
+    }
+
+    const sortByDeadlineASC = (a, b) => {
+        return a.deadline > b.deadline ? 1 : a.deadline < b.deadline ? -1 : a.date > b.date ? 1 : a.date < b.date ? -1 : 0;
+    }
+
+    const sortByDeadlineDESC = (a, b) => {
+        return a.deadline < b.deadline ? 1 : a.deadline > b.deadline ? -1 : a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+    }
+
     const sort = (a, b) => {
         switch (sortBy) {
             case 'Name ASC':
-                return a.name > b.name ? 1 : a.name === b.name ? 0 : -1;
+                return sortByNameASC(a, b);
             case 'Name DESC':
-                return a.name < b.name ? 1 : a.name === b.name ? 0 : -1;
+                return sortByNameDESC(a, b);
             case 'Date ASC':
-                return a.date > b.date ? 1 : a.date === b.date ? 0 : -1;
+                return sortByDateASC(a, b);
             case 'Date DESC':
-                return a.date < b.date ? 1 : a.date === b.date ? 0 : -1;
+                return sortByDateDESC(a, b);
             case 'Deadline ASC':
-                return a.deadline > b.deadline ? 1 : a.deadline === b.deadline ? 0 : -1;
+                return sortByDeadlineASC(a, b);
             case 'Deadline DESC':
-                return a.deadline < b.deadline ? 1 : a.deadline === b.deadline ? 0 : -1;
+                return sortByDeadlineDESC(a, b);
         }
     }
 
@@ -56,7 +83,6 @@ const TaskBoardScreen = props => {
     }
 
     const loadTasks = () => {
-        console.log('loadTasks');
         firebase.database().ref(`${USERNAME}/TaskManager/${taskBoard.id}/Tasks`).once('value', function (snapshot) {
             const loadedTasks = [];
             snapshot.forEach(function (childSnapshot) {
@@ -88,14 +114,8 @@ const TaskBoardScreen = props => {
                 )
             });
             setTaskBoards(loadedTaskBoards);
-            if (loadedTaskBoards.length > 0) {
-                setTaskBoard(loadedTaskBoards[0]);
-            } else {
-                props.navigation.navigate('CreateTaskBoard', {
-                    id: taskBoard.id, editMode: false,
-                });
-            }
-        });
+            setLoadedFinish(true);
+        })
         return () => {
             firebase.database().ref(`${USERNAME}/TaskManager`).off()
         };
@@ -105,9 +125,25 @@ const TaskBoardScreen = props => {
         loadTasks();
     }, [taskBoard])
 
+    useEffect(() => {
+        if (taskBoards.length > 0) {
+            if (taskBoard.id != '-1') {
+                setTaskBoard(taskBoards.find((board) => board.id === taskBoard.id))
+            } else {
+                setTaskBoard(taskBoards[0]);
+            }
+        } else {
+            if (loadedFinish) {
+                props.navigation.navigate('CreateTaskBoard', {
+                    id: taskBoard.id, editMode: false,
+                });
+            }
+        }
+    }, [taskBoards, loadedFinish]);
+
     return (
         <View style={styles.screen}>
-            <Modal
+            {  Platform.OS != 'web' && <Modal
                 animationType='fade'
                 transparent={true}
                 visible={showFilterModal}>
@@ -137,6 +173,11 @@ const TaskBoardScreen = props => {
                                 <TextItem fontSize={26}>Done</TextItem>
                             </TouchableOpacity>
                             <TouchableOpacity
+                                style={{ width: '100%', alignItems: 'center', backgroundColor: showDayOfWeek ? '#40FFAA80' : '#00000000' }}
+                                onPress={() => setShowDayOfWeek(!showDayOfWeek)}>
+                                <TextItem fontSize={26}>Show Day of Week</TextItem>
+                            </TouchableOpacity>
+                            <TouchableOpacity
                                 style={{ width: '100%', alignItems: 'flex-end', padding: 10 }}
                                 onPress={() => {
                                     setShowFilterModal(false);
@@ -146,14 +187,14 @@ const TaskBoardScreen = props => {
                         </View>
                     </View>
                 </View>
-            </Modal>
+            </Modal>}
 
             <View style={styles.header}>
                 {taskBoards.length > 0 && <MyPicker
                     style={styles.picker}
                     data={taskBoards}
                     presetItemId={taskBoards[0].id}
-                    onValueChange={(taskBoard) => { setTaskBoard(taskBoard); }}
+                    onValueChange={(taskBoard) => setTaskBoard(taskBoard)}
                     createBoard={() => {
                         props.navigation.navigate('CreateTaskBoard', {
                             editMode: false,
@@ -177,7 +218,6 @@ const TaskBoardScreen = props => {
 
             </View>
             <View style={styles.configBar}>
-
                 <Picker
                     selectedValue={sortBy}
                     style={{ height: 50, color: 'grey', flex: 1 }}
@@ -189,8 +229,6 @@ const TaskBoardScreen = props => {
                     <Picker.Item label="Deadline ASC" value="Deadline ASC" />
                     <Picker.Item label="Deadline DESC" value="Deadline DESC" />
                 </Picker>
-
-
                 <TouchableOpacity
                     onPress={() => {
                         props.navigation.navigate('CreateTask', {
@@ -201,11 +239,13 @@ const TaskBoardScreen = props => {
                     <MaterialCommunityIcons name="plus" size={36} color="#00FF00" />
                 </TouchableOpacity>
             </View>
-
-            <ScrollView>
-                {tasks.filter((task) => filter(task)).sort((a, b) => sort(a, b)).map((item, index) =>
-                    <TaskItem editTask={(task) => editTask(task)} task={item} taskBoardId={taskBoard.id} firebase={firebase} />)}
-            </ScrollView>
+            <FlatList
+                data={tasks.filter((task) => filter(task)).sort((a, b) => sort(a, b))}
+                keyExtractor={item => item.id}
+                renderItem={itemData => (
+                    <TaskItem key={itemData.item.id} editTask={(task) => editTask(task)} task={itemData.item} taskBoardId={taskBoard.id} firebase={firebase} showDayOfWeek={showDayOfWeek} />
+                )}
+            />
         </View>
     );
 };

@@ -4,11 +4,10 @@ import TextItem from '../../components/TextItem';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Picker = props => {
-    const [selectedItem, setSelectedItem] = useState(props.presetItemId != -1 ? props.data.find((item) => item.id === props.presetItemId) : props.data[0]);
+    const [selectedItem, setSelectedItem] = useState(props.presetItemId != '-1' ? props.data.find((item) => item.id === props.presetItemId) : props.data[0]);
     const [showList, setShowList] = useState(false);
 
     useEffect(() => { props.onValueChange(selectedItem) }, [])
-
     return (
         <View style={[props.style]}>
             <View style={[styles.item, { maxHeight: showList ? '20%' : '100%', marginBottom: showList ? 20 : 0 }]}>
@@ -31,10 +30,10 @@ const Picker = props => {
 
             </View>
             {showList && <View style={[styles.list, { borderWidth: showList ? 1 : 0 }]}>
-
                 <ScrollView>
                     {props.data.sort((a, b) => a.name > b.name ? 1 : a.name === b.name ? 0 : -1).map((item, index) =>
                         <TouchableOpacity
+                            key={item.id}
                             onPress={() => {
                                 setSelectedItem(item);
                                 props.onValueChange(item);
@@ -53,8 +52,6 @@ const Picker = props => {
                         <MaterialCommunityIcons name="plus" size={36} color="green" />
                     </TouchableOpacity>
                 </ScrollView>
-
-
             </View>}
         </View>
     );

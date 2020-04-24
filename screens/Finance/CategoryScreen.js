@@ -28,10 +28,8 @@ const CategoryScreen = props => {
                 return false;
             }
             if (selectedCategory.id === -1) {
-                console.log('back -1')
                 return false;
             } else {
-                console.log('back default')
                 setSelectedCategory(allCategories.find((category) => category.id === selectedCategory.parentId));
                 return true;
             }
