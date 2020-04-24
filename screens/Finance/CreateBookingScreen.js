@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Alert, Platform, ToastAndroid, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, Alert, Platform, ToastAndroid, TouchableOpacity, Dimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as financeActions from '../../store/actions/finances';
 import DatePicker from '../../components/DatePicker';
