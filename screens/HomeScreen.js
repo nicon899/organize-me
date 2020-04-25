@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useDispatch } from 'react-redux';
-import * as financeActions from '../store/actions/finances';
 
 const HomeScreen = props => {
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(financeActions.fetchFinanceData());
-    }, [dispatch]);
-
     return (
         <View style={styles.screen}>
             <Text>HomeScreen</Text>

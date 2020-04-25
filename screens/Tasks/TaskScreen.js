@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Picker, Modal, Platform, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-
 import TaskItem from '../../components/Tasks/TaskItem';
 import TextItem from '../../components/TextItem';
 import MyPicker from '../../components/Tasks/TaskBoardPicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList } from 'react-native-gesture-handler';
-
 import * as taskActions from '../../store/actions/tasks';
-import TaskBoardScreen from './TaskBoardScreen';
 
 const TaskLoadingScreen = props => {
     const [isLoading, setIsLoading] = useState(false);
@@ -110,6 +107,7 @@ const TaskLoadingScreen = props => {
         //     });
         // }
     }, []);
+
 
     if (isLoading) {
         return (

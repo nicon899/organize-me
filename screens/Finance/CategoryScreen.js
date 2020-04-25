@@ -1,18 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, BackHandler, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, BackHandler, TouchableOpacity, Dimensions, ActivityIndicator, FlatList } from 'react-native';
 import CategoryItemList from '../../components/Finance/CategoryItemList';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import DatePicker from '../../components/DatePicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as financeActions from '../../store/actions/finances';
+import Category from '../../models/category';
 
 const CategoryScreen = props => {
     const [date, setDate] = useState(new Date());
     const [value, setValue] = useState(0);
     const [bookings, setBookings] = useState([]);
     const allCategories = useSelector(state => state.finances.categories);
-    const [selectedCategory, setSelectedCategory] = useState(allCategories[0]);
-    const categories = useSelector(state => state.finances.categories).filter((category) => category.parentId === selectedCategory.id).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0);
+    const [selectedCategory, setSelectedCategory] = useState(new Category(-1, 'Finanzen', 0, 0));
+    const categories = selectedCategory ? useSelector(state => state.finances.categories).filter((category) => category.parentId === selectedCategory.id).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0) : [];
     const allBookings = useSelector(state => state.finances.bookings).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const dispatch = useDispatch();
+
+    const loadFinanceData = useCallback(async () => {
+        try {
+            await dispatch(financeActions.fetchFinanceData());
+        } catch (err) {
+            console.log('CategoryScreen/loadFinanceData Error: ' + err);
+        }
+    }, [dispatch, setIsLoading]);
+
+    useEffect(() => {
+        setIsLoading(true);
+        loadFinanceData().then(() => {
+            setIsLoading(false);
+        });
+    }, [dispatch, loadFinanceData]);
 
     const scaleFontSize = (fontSize) => {
         return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
@@ -42,39 +62,41 @@ const CategoryScreen = props => {
     });
 
     useEffect(() => {
-        let val = 0;
-        const filteredBookings = allBookings.filter((booking) => booking.categoryId === selectedCategory.id && booking.date <= date);
-        filteredBookings.forEach(booking => val += booking.value);
-        allCategories.forEach(cat => {
-            const catBookings = allBookings.filter((booking) => booking.categoryId === cat.id && booking.date <= date);
-            let subCatValue = 0;
-            catBookings.forEach(booking => {
-                subCatValue += booking.value;
-            });
-            cat.value = Math.round((subCatValue) * 100 + Number.EPSILON) / 100;
-        });
-
-        const setCatValue = (id) => {
-            const subCats = allCategories.filter((cat) => cat.parentId === id);
-            if (subCats.length > 0) {
-                let subCatValueTotal = 0;
-                subCats.forEach((cat) => {
-                    setCatValue(cat.id);
-                    subCatValueTotal += cat.value;
+        if (!isLoading) {
+            let val = 0;
+            const filteredBookings = allBookings.filter((booking) => booking.categoryId === selectedCategory.id && booking.date <= date);
+            filteredBookings.forEach(booking => val += booking.value);
+            allCategories.forEach(cat => {
+                const catBookings = allBookings.filter((booking) => booking.categoryId === cat.id && booking.date <= date);
+                let subCatValue = 0;
+                catBookings.forEach(booking => {
+                    subCatValue += booking.value;
                 });
-                const parentCat = allCategories.find((cat) => cat.id === id);
-                if (parentCat) {
-                    parentCat.value += subCatValueTotal;
+                cat.value = Math.round((subCatValue) * 100 + Number.EPSILON) / 100;
+            });
+
+            const setCatValue = (id) => {
+                const subCats = allCategories.filter((cat) => cat.parentId === id);
+                if (subCats.length > 0) {
+                    let subCatValueTotal = 0;
+                    subCats.forEach((cat) => {
+                        setCatValue(cat.id);
+                        subCatValueTotal += cat.value;
+                    });
+                    const parentCat = allCategories.find((cat) => cat.id === id);
+                    if (parentCat) {
+                        parentCat.value += subCatValueTotal;
+                    }
                 }
             }
+            setCatValue(-1);
+            categories.forEach((cat) => {
+                val += cat.value;
+            });
+            setBookings(filteredBookings);
+            setValue(Math.round(val * 100 + Number.EPSILON) / 100);
         }
-        setCatValue(-1);
-        categories.forEach((cat) => {
-            val += cat.value;
-        });
-        setBookings(filteredBookings);
-        setValue(Math.round(val * 100 + Number.EPSILON) / 100);
-    }, [date, allBookings, allCategories, selectedCategory]);
+    }, [date, allBookings, allCategories, selectedCategory, isLoading]);
 
     const setLatestDate = () => {
         let today = new Date();
@@ -86,65 +108,72 @@ const CategoryScreen = props => {
         }
     }
 
-    return (
-        <View style={styles.screen}>
-            <View style={styles.topBar}>
-                <View style={styles.topBarCat}>
-                    <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>{selectedCategory.name} <Text numberOfLines={1} style={{ color: value > 0 ? 'green' : 'red' }}>{(selectedCategory.name + value).length > 20 && '\n'}{value} €</Text> </Text>
-                    <TouchableOpacity
-                        onPress={() => {
-                            props.navigation.navigate('EditCategory', { categoryId: selectedCategory.id, name: selectedCategory.name })
-                        }}
-                    >
-                        <MaterialCommunityIcons name="lead-pencil" size={scaleFontSize(32)} color="white" />
-                    </TouchableOpacity>
+    if (isLoading || !selectedCategory) {
+        return (
+            <View style={{ flex: 1, }}>
+                <ActivityIndicator size="large" color='#FF00FF' />
+            </View>
+        );
+    } else {
+        return (
+            <View style={styles.screen}>
+                <View style={styles.topBar}>
+                    <View style={styles.topBarCat}>
+                        <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>{selectedCategory.name} <Text numberOfLines={1} style={{ color: value > 0 ? 'green' : 'red' }}>{(selectedCategory.name + value).length > 20 && '\n'}{value} €</Text> </Text>
+                        <TouchableOpacity
+                            onPress={() => {
+                                props.navigation.navigate('EditCategory', { categoryId: selectedCategory.id, name: selectedCategory.name })
+                            }}
+                        >
+                            <MaterialCommunityIcons name="lead-pencil" size={scaleFontSize(32)} color="white" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
 
-            <View style={{ flex: 1 }}>
-                <CategoryItemList
-                    style={{ maxHeight: '100%' }}
-                    bookings={bookings}
-                    categories={categories}
-                    showBooking={(id) => props.navigation.push('Booking', { id: id })}
-                    showCategory={(id) => setSelectedCategory(categories.find((category) => category.id === id))}
-                    showBookings={selectedCategory.id != -1}
-                />
-            </View>
-
-
-            <View style={styles.topBarDate}>
-                <DatePicker
-                    style={styles.dateInput}
-                    date={date}
-                    setDate={setDate}
-                />
-                <View style={styles.topBarDateIcons}>
-                    <TouchableOpacity
-                        onPress={() => setDate(new Date())}
-                    >
-                        <MaterialCommunityIcons name="timetable" size={scaleFontSize(36)} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => {
-                            setLatestDate();
-                        }}>
-                        <MaterialCommunityIcons name="timer-sand-full" size={scaleFontSize(36)} color="white" />
-                    </TouchableOpacity>
-                    {selectedCategory.id != -1 && <TouchableOpacity
-                        onPress={() => {
-                            props.navigation.navigate('CreateBooking', {
-                                categoryId: selectedCategory.id, editMode: false,
-                            });
-                        }}
-                    >
-                        <MaterialCommunityIcons name="credit-card-plus" size={scaleFontSize(36)} color="#00FF00" />
-                    </TouchableOpacity>}
+                <View style={{ flex: 1 }}>
+                    <CategoryItemList
+                        style={{ maxHeight: '100%' }}
+                        bookings={bookings}
+                        categories={categories}
+                        showBooking={(id) => props.navigation.push('Booking', { id: id })}
+                        showCategory={(id) => setSelectedCategory(categories.find((category) => category.id === id))}
+                        showBookings={selectedCategory.id != -1}
+                    />
                 </View>
-            </View>
 
-        </View >
-    );
+                <View style={styles.topBarDate}>
+                    <DatePicker
+                        style={styles.dateInput}
+                        date={date}
+                        setDate={setDate}
+                    />
+                    <View style={styles.topBarDateIcons}>
+                        <TouchableOpacity
+                            onPress={() => setDate(new Date())}
+                        >
+                            <MaterialCommunityIcons name="timetable" size={scaleFontSize(36)} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                setLatestDate();
+                            }}>
+                            <MaterialCommunityIcons name="timer-sand-full" size={scaleFontSize(36)} color="white" />
+                        </TouchableOpacity>
+                        {selectedCategory.id != -1 && <TouchableOpacity
+                            onPress={() => {
+                                props.navigation.navigate('CreateBooking', {
+                                    categoryId: selectedCategory.id, editMode: false,
+                                });
+                            }}
+                        >
+                            <MaterialCommunityIcons name="credit-card-plus" size={scaleFontSize(36)} color="#00FF00" />
+                        </TouchableOpacity>}
+                    </View>
+                </View>
+
+            </View >
+        );
+    }
 };
 
 const styles = StyleSheet.create({
