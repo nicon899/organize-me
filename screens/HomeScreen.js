@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useDispatch } from 'react-redux';
 import * as financeActions from '../store/actions/finances';
 
@@ -26,7 +26,7 @@ const HomeScreen = props => {
                     props.navigation.navigate('Tasks')
                 }}
             >
-                <Text style={{ fontSize: 32  }}>Tasks</Text>
+                <Text style={{ fontSize: 32 }}>Tasks</Text>
             </TouchableOpacity>
         </View>
     );

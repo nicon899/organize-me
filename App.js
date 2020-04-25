@@ -6,10 +6,12 @@ import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 
 import financeReducer from './store/reducers/finances';
+import taskReducer from './store/reducers/tasks';
 import { MainNavigator } from './navigation/AppNavigator';
 
 const rootReducer = combineReducers({
   finances: financeReducer,
+  tasks: taskReducer,
 });
 const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 

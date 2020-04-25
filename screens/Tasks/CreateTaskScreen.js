@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { useDispatch } from 'react-redux';
 import DatePicker from '../../components/DatePicker';
 import TextItem from '../../components/TextItem';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-const USERNAME = 'Nico';
+import * as taskActions from '../../store/actions/tasks';
 
 
 const CreateTaskScreen = props => {
@@ -12,25 +12,18 @@ const CreateTaskScreen = props => {
     const [date, setDate] = useState(props.route.params.editMode ? new Date(props.route.params.date) : new Date());
     const [deadline, setDeadline] = useState(props.route.params.editMode ? new Date(props.route.params.deadline) : new Date());
 
+    const dispatch = useDispatch();
+
     const deleteTask = () => {
-        const firebase = require("firebase");
-        if (!firebase.apps.length) {
-            firebase.initializeApp({
-                databaseURL: "https://organize-me-private.firebaseio.com/",
-                projectId: "organize-me-private",
-            });
-        }
-        firebase.database().ref(`${USERNAME}/TaskManager/${props.route.params.id}/Tasks/${props.route.params.taskId}`).remove();
+        dispatch(taskActions.deleteTask(props.route.params.taskId, props.route.params.id));
         props.navigation.goBack();
     };
 
     return (
         <View style={styles.screen}>
-
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 50, }}
             >
                 <TextItem fontSize={48} style={{ color: 'white', fontWeight: 'bold', }}>{props.route.params.editMode ? 'Edit Task' : 'New Task'}</TextItem>
-
                 {props.route.params.editMode && <TouchableOpacity
                     onPress={() => deleteTask()}            >
                     <MaterialCommunityIcons style={{ marginLeft: 8 }} name="delete" size={36} color="red" />
@@ -84,19 +77,9 @@ const CreateTaskScreen = props => {
                             });
                         }
                         if (props.route.params.editMode) {
-                            firebase.database().ref(`${USERNAME}/TaskManager/${props.route.params.id}/Tasks/${props.route.params.taskId}`).update({
-                                name,
-                                date: date.toString(),
-                                deadline: deadline.toString(),
-                                status: 'Open'
-                            });
+                            dispatch(taskActions.editTask(props.route.params.taskId, name, date, deadline, props.route.params.id))
                         } else {
-                            firebase.database().ref(`${USERNAME}/TaskManager/${props.route.params.id}/Tasks`).push({
-                                name,
-                                date: date.toString(),
-                                deadline: deadline.toString(),
-                                status: 'Open'
-                            });
+                            dispatch(taskActions.addTask(name, date, deadline, 'Open', props.route.params.id));
                         }
                         props.navigation.goBack();
                     }}

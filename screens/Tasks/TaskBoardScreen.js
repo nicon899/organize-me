@@ -1,34 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Picker, Modal, Platform } from 'react-native';
-import Task from '../../models/task';
-import TaskBoard from '../../models/taskboard';
+import { useSelector } from 'react-redux';
+
 import TaskItem from '../../components/Tasks/TaskItem';
 import TextItem from '../../components/TextItem';
 import MyPicker from '../../components/Tasks/TaskBoardPicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList } from 'react-native-gesture-handler';
 
-const USERNAME = 'Nico';
-
 const TaskBoardScreen = props => {
-    const [taskBoard, setTaskBoard] = useState(new TaskBoard('-1', 'Default'));
-    const [tasks, setTasks] = useState([]);
-    const [taskBoards, setTaskBoards] = useState([]);
+    const taskBoards = useSelector(state => state.tasks.taskboards);
+    const [taskBoard, setTaskBoard] = useState(taskBoards[0]);
     const [sortBy, setSortBy] = useState('Date ASC');
     const [showTasksOpen, setShowTasksOpen] = useState(true);
     const [showTasksInProgress, setShowTasksInProgress] = useState(true);
     const [showTasksDone, setShowTasksDone] = useState(false);
     const [showDayOfWeek, setShowDayOfWeek] = useState(true);
     const [showFilterModal, setShowFilterModal] = useState(false);
-    const [loadedFinish, setLoadedFinish] = useState(false);
-
-    const firebase = require("firebase");
-    if (!firebase.apps.length) {
-        firebase.initializeApp({
-            databaseURL: "https://organize-me-private.firebaseio.com/",
-            projectId: "organize-me-private",
-        });
-    }
 
     const sortByNameASC = (a, b) => {
         return a.name > b.name ? 1 : a.name === b.name ? 0 : -1;
@@ -82,18 +70,6 @@ const TaskBoardScreen = props => {
         }
     }
 
-    const loadTasks = () => {
-        firebase.database().ref(`${USERNAME}/TaskManager/${taskBoard.id}/Tasks`).once('value', function (snapshot) {
-            const loadedTasks = [];
-            snapshot.forEach(function (childSnapshot) {
-                loadedTasks.push(
-                    new Task(childSnapshot.key, childSnapshot.child('name').val(), new Date(childSnapshot.child('date').val()), new Date(childSnapshot.child('deadline').val()), childSnapshot.child('status').val()),
-                )
-            });
-            setTasks(loadedTasks);
-        })
-    }
-
     const editTask = (task) => {
         props.navigation.navigate('CreateTask', {
             id: taskBoard.id,
@@ -106,44 +82,16 @@ const TaskBoardScreen = props => {
     }
 
     useEffect(() => {
-        firebase.database().ref(`${USERNAME}/TaskManager`).on('value', function (snapshot) {
-            const loadedTaskBoards = [];
-            snapshot.forEach(function (childSnapshot) {
-                loadedTaskBoards.push(
-                    new TaskBoard(childSnapshot.key, childSnapshot.child('name').val()),
-                )
-            });
-            setTaskBoards(loadedTaskBoards);
-            setLoadedFinish(true);
-        })
-        return () => {
-            firebase.database().ref(`${USERNAME}/TaskManager`).off()
-        };
-    }, [])
-
-    useEffect(() => {
-        loadTasks();
-    }, [taskBoard])
-
-    useEffect(() => {
-        if (taskBoards.length > 0) {
-            if (taskBoard.id != '-1') {
-                setTaskBoard(taskBoards.find((board) => board.id === taskBoard.id))
-            } else {
-                setTaskBoard(taskBoards[0]);
-            }
-        } else {
-            if (loadedFinish) {
-                props.navigation.navigate('CreateTaskBoard', {
-                    id: taskBoard.id, editMode: false,
-                });
-            }
-        }
-    }, [taskBoards, loadedFinish]);
+        // if (taskBoards.length <= 0) {
+        //     props.navigation.navigate('CreateTaskBoard', {
+        //         id: taskBoard.id, editMode: false,
+        //     });
+        // }
+    }, []);
 
     return (
         <View style={styles.screen}>
-            {  Platform.OS != 'web' && <Modal
+            {Platform.OS != 'web' && <Modal
                 animationType='fade'
                 transparent={true}
                 visible={showFilterModal}>
@@ -239,13 +187,13 @@ const TaskBoardScreen = props => {
                     <MaterialCommunityIcons name="plus" size={36} color="#00FF00" />
                 </TouchableOpacity>
             </View>
-            <FlatList
-                data={tasks.filter((task) => filter(task)).sort((a, b) => sort(a, b))}
+            {taskBoard && <FlatList
+                data={taskBoard.tasks.filter((task) => filter(task)).sort((a, b) => sort(a, b))}
                 keyExtractor={item => item.id}
                 renderItem={itemData => (
-                    <TaskItem key={itemData.item.id} editTask={(task) => editTask(task)} task={itemData.item} taskBoardId={taskBoard.id} firebase={firebase} showDayOfWeek={showDayOfWeek} />
+                    <TaskItem key={itemData.item.id} editTask={(task) => editTask(task)} task={itemData.item} taskBoardId={taskBoard.id} showDayOfWeek={showDayOfWeek} />
                 )}
-            />
+            />}
         </View>
     );
 };

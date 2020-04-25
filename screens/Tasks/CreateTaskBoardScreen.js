@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { useDispatch } from 'react-redux';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-const USERNAME = 'Nico';
-
+import * as taskActions from '../../store/actions/tasks';
 
 const CreateTaskBoardScreen = props => {
     const [name, setName] = useState(props.route.params.editMode ? props.route.params.name : '');
-    
+    const dispatch = useDispatch();
+
     const deleteTaskBoard = () => {
-        const firebase = require("firebase");
-        if (!firebase.apps.length) {
-            firebase.initializeApp({
-                databaseURL: "https://organize-me-private.firebaseio.com/",
-                projectId: "organize-me-private",
-            });
-        }
-        firebase.database().ref(`${USERNAME}/TaskManager/${props.route.params.id}`).remove();
+        dispatch(taskActions.deleteTaskboard(props.route.params.id));
         props.navigation.goBack();
     };
 
@@ -51,23 +45,11 @@ const CreateTaskBoardScreen = props => {
 
                 <TouchableOpacity
                     style={{ borderWidth: 1, borderColor: 'green', borderRadius: 5, alignItems: 'center', justifyContent: 'center', padding: 15, width: '30%', height: '50%' }}
-
                     onPress={() => {
-                        const firebase = require("firebase");
-                        if (!firebase.apps.length) {
-                            firebase.initializeApp({
-                                databaseURL: "https://organize-me-private.firebaseio.com/",
-                                projectId: "organize-me-private",
-                            });
-                        }
                         if (props.route.params.editMode) {
-                            firebase.database().ref(`${USERNAME}/TaskManager/${props.route.params.id}`).update({
-                                name: name,
-                            });
+                            dispatch(taskActions.updateTaskboard(props.route.params.id, name));
                         } else {
-                            firebase.database().ref(`${USERNAME}/TaskManager`).push({
-                                name,
-                            });
+                            dispatch(taskActions.addTaskboard(name));
                         }
                         props.navigation.goBack();
                     }}
