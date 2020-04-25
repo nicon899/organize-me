@@ -17,7 +17,6 @@ const initialState = {
 
 export default (state = initialState, action) => {
     const updatedTaskboards = [...state.taskboards];
-    console.log('reducer: ' +action.type);
     switch (action.type) {
         case SET_TASKDATA:
             return {
@@ -57,7 +56,6 @@ export default (state = initialState, action) => {
         case EDIT_TASK: {
             const taskboardIndexEditTask = updatedTaskboards.findIndex((tboard) => tboard.id === action.taskBoardId);
             const taskIndex = updatedTaskboards[taskboardIndexEditTask].tasks.findIndex((task) => task.id === action.id);
-            console.log('Edit: ' + updatedTaskboards[taskboardIndexEditTask].tasks[taskIndex].name);
             updatedTaskboards[taskboardIndexEditTask].tasks[taskIndex].name = action.name;
             updatedTaskboards[taskboardIndexEditTask].tasks[taskIndex].date = action.date;
             updatedTaskboards[taskboardIndexEditTask].tasks[taskIndex].deadline = action.deadline;

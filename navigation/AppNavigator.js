@@ -12,10 +12,7 @@ import EditCategoryScreen from '../screens/Finance/EditCategoryScreen';
 
 import CreateTaskBoardScreen from '../screens/Tasks/CreateTaskBoardScreen';
 import CreateTaskScreen from '../screens/Tasks/CreateTaskScreen';
-import TaskBoardScreen from '../screens/Tasks/TaskBoardScreen';
-import CalendarScreen from '../screens/Tasks/CalendarScreen';
-import TaskLoadingScreen from '../screens/Tasks/TaskLoadingScreen';
-
+import TaskScreen from '../screens/Tasks/TaskScreen';
 
 const FinanceStack = createStackNavigator();
 const FinanceStackNavigator = () => {
@@ -40,11 +37,9 @@ const TaskStackNavigator = () => {
             screenOptions={{
                 headerShown: Platform.OS === 'android' ? false : true
             }}>
-            <TaskStack.Screen name="TaskLoadingScreen" component={TaskLoadingScreen} />
-            <TaskStack.Screen name="TaskBoard" component={TaskBoardScreen} />
+            <TaskStack.Screen name="TaskScreen" component={TaskScreen} />
             <TaskStack.Screen name="CreateTaskBoard" component={CreateTaskBoardScreen} />
             <TaskStack.Screen name="CreateTask" component={CreateTaskScreen} />
-            <TaskStack.Screen name="CalendarScreen" component={CalendarScreen} />
         </TaskStack.Navigator>
     );
 }

@@ -21,6 +21,7 @@ export const fetchTaskData = () => {
                 projectId: "organize-me-private",
             });
         }
+
         const taskboards = [];
         firebase.database().ref(`${USERNAME}/TaskManager`).once('value', function (snapshot) {
             snapshot.forEach(function (childSnapshot) {
@@ -31,7 +32,7 @@ export const fetchTaskData = () => {
                             new Task(childSnapshot.key, childSnapshot.child('name').val(), new Date(childSnapshot.child('date').val()), new Date(childSnapshot.child('deadline').val()), childSnapshot.child('status').val()),
                         )
                     });
-                })
+                });
                 taskboards.push(new TaskBoard(childSnapshot.key, childSnapshot.child('name').val(), tasks));
                 dispatch({
                     type: SET_TASKDATA,
@@ -157,7 +158,6 @@ export const editTask = (id, name, date, deadline, taskBoardId) => {
             deadline,
         }).then((data) => {
             //success callback
-            console.log('done')
             dispatch({
                 type: EDIT_TASK,
                 id: id,
