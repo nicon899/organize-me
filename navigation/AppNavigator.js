@@ -23,7 +23,7 @@ const FinanceStackNavigator = () => {
     return (
         <FinanceStack.Navigator
             screenOptions={{
-                headerShown: Platform.OS === 'android' ? false : true
+                headerShown: false
             }}>
             <FinanceStack.Screen name="Category" component={CategoryScreen} />
             <FinanceStack.Screen name="CreateCategory" component={CreateCategoryScreen} />
@@ -39,34 +39,47 @@ const TaskStackNavigator = () => {
     return (
         <TaskStack.Navigator
             screenOptions={{
-                headerShown: Platform.OS === 'android' ? false : true
+                headerShown: false,
             }}>
             {/* <TaskStack.Screen name="Calendar" component={CalendarScreen} /> */}
-            <TaskStack.Screen name="TaskScreen" component={Platform.OS === 'web' ? CalendarScreen : TaskScreen} />
+            <TaskStack.Screen name="TaskScreen" component={TaskScreen} />
             <TaskStack.Screen name="CreateTaskBoard" component={CreateTaskBoardScreen} />
             <TaskStack.Screen name="CreateTask" component={CreateTaskScreen} />
         </TaskStack.Navigator>
     );
 };
 
-// const MainDrawerNavigator = createDrawerNavigator();
-// export const MainNavigator = () => {
-//     return (
-//         <MainDrawerNavigator.Navigator>
-//             <MainDrawerNavigator.Screen name="Home" component={HomeScreen} />
-//             <MainDrawerNavigator.Screen name="Finance" component={FinanceStackNavigator} />
-//             <MainDrawerNavigator.Screen name="Tasks" component={TaskStackNavigator} />
-//         </MainDrawerNavigator.Navigator>
-//     );
-// };
+const MainTabNavigation = createMaterialTopTabNavigator();
+export const MainTabNavigator = () => {
+    if (Platform.OS === 'web') {
+        return (
+            <MainTabNavigation.Navigator>
+                <MainTabNavigation.Screen name="Calendar" component={CalendarScreen} />
+                <MainTabNavigation.Screen name="Tasks" component={TaskStackNavigator} />
+            </MainTabNavigation.Navigator>
+        );
+    } else {
+        return (
+            <MainTabNavigation.Navigator>
+                <MainTabNavigation.Screen name="Finance" component={FinanceStackNavigator} />
+                <MainTabNavigation.Screen name="Tasks" component={TaskStackNavigator} />
+                <MainTabNavigation.Screen name="Calendar" component={CalendarScreen} />
+            </MainTabNavigation.Navigator>
+        );
+    }
+};
 
-const MainDrawerNavigator = createMaterialTopTabNavigator();
+const MainDrawerNavigator = createStackNavigator();
 export const MainNavigator = () => {
     return (
-        <MainDrawerNavigator.Navigator>
+        <MainDrawerNavigator.Navigator
+            screenOptions={{
+                headerShown: false
+            }}
+        >
             <MainDrawerNavigator.Screen name="Home" component={HomeScreen} />
-            <MainDrawerNavigator.Screen name="Finance" component={FinanceStackNavigator} />
-            <MainDrawerNavigator.Screen name="Tasks" component={TaskStackNavigator} />
+            <MainDrawerNavigator.Screen name="Main" component={MainTabNavigator} />
         </MainDrawerNavigator.Navigator>
     );
 };
+

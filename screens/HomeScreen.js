@@ -3,10 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'rea
 import { useDispatch } from 'react-redux';
 import * as taskActions from '../store/actions/tasks';
 import * as financeActions from '../store/actions/finances';
+import { MainTabNavigator } from '../navigation/AppNavigator';
+import { NavigationContainer } from '@react-navigation/native';
+
 
 const HomeScreen = props => {
     const [isLoading, setIsLoading] = useState(true);
-
     const dispatch = useDispatch();
 
     const loadFinance = useCallback(async () => {
@@ -40,25 +42,17 @@ const HomeScreen = props => {
             </View>
         );
     } else {
+        props.navigation.reset({
+            index: 0,
+            routes: [
+                {
+                    name: 'Main',
+                },
+            ],
+        }
+        );
         return (
             <View style={styles.screen}>
-                <Text>HomeScreen</Text>
-                <TouchableOpacity
-                    style={{}}
-                    onPress={() => {
-                        props.navigation.navigate('Finance')
-                    }}
-                >
-                    <Text style={{ fontSize: 32 }}>Finanzen</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={{}}
-                    onPress={() => {
-                        props.navigation.navigate('Tasks')
-                    }}
-                >
-                    <Text style={{ fontSize: 32 }}>Tasks</Text>
-                </TouchableOpacity>
             </View>
         );
     }

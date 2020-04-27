@@ -38,8 +38,8 @@ const CalenderDay = props => {
 
         events.push(
             <View style={styles.section}>
-                {props.showTime && <View style={styles.time}><Text style={{ color: (now.getTime() - 900000 < day.getTime() && now.getTime() > day.getTime()) ? 'blue' : 'white' }}>{getTime(day)}</Text></View>}
-                <View style={styles.timeSection}>{items}</View>
+                {props.showTime && <View style={styles.time}>{day.getMinutes() % 30 === 0 && <Text style={{ color: (now.getTime() - 900000 < day.getTime() && now.getTime() > day.getTime()) ? 'blue' : 'white' }}>{getTime(day)}</Text>}</View>}
+                <View style={[styles.timeSection, { borderBottomWidth: (day.getMinutes() + 15) % 30 === 0 ? 1 : 0, borderTopWidth: day.getMinutes() === 0 ? 1 : 0 }]}>{items}</View>
             </View>
         );
 
@@ -47,8 +47,7 @@ const CalenderDay = props => {
 
 
     return (
-        <View style={styles.screen}>
-            <TextItem fontSize={28} style={{ color: 'white' }}>{props.name}</TextItem>
+        <View style={props.style}>
             {events}
             {/* <FlatList
                 data={props.tasks}
@@ -68,22 +67,23 @@ const CalenderDay = props => {
 };
 
 const styles = StyleSheet.create({
-    screen: {
-        flex: 1,
-    },
     section: {
         width: '100%',
-        minHeight: 25,
-        flexDirection: 'row'
+        height: 20,
+        flexDirection: 'row',
     },
     timeSection: {
-        borderWidth: 1,
         borderColor: 'grey',
         flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
     },
     time: {
         marginRight: 10,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        width: 40,
     }
 });
 

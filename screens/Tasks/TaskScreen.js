@@ -6,9 +6,10 @@ import TextItem from '../../components/TextItem';
 import MyPicker from '../../components/Tasks/TaskBoardPicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList } from 'react-native-gesture-handler';
+import { useFocusEffect } from '@react-navigation/native';
 
 const TaskLoadingScreen = props => {
-    const taskBoards = useSelector(state => state.tasks.taskboards);
+    let taskBoards = useSelector(state => state.tasks.taskboards);
     const [taskBoard, setTaskBoard] = useState(taskBoards[0]);
     const [sortBy, setSortBy] = useState('Date ASC');
     const [showTasksOpen, setShowTasksOpen] = useState(true);
@@ -16,6 +17,7 @@ const TaskLoadingScreen = props => {
     const [showTasksDone, setShowTasksDone] = useState(false);
     const [showDayOfWeek, setShowDayOfWeek] = useState(true);
     const [showFilterModal, setShowFilterModal] = useState(false);
+    const [focused, setIsFocused] = useState(false);
 
     const filter = (task) => {
         switch (task.status) {
@@ -38,6 +40,19 @@ const TaskLoadingScreen = props => {
             editMode: true,
         });
     }
+
+    useFocusEffect(
+        useCallback(() => {
+            // Do something when the screen is focused
+            console.log('Focus');
+            setIsFocused(true);
+            return () => {
+                // Do something when the screen is unfocused
+                // Useful for cleanup functions
+                setIsFocused(false);
+            };
+        }, [])
+    );
 
     const sortByNameASC = (a, b) => {
         return a.name > b.name ? 1 : a.name === b.name ? 0 : -1;

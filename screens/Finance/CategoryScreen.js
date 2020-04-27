@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, BackHandler, TouchableOpacity, Dimensions} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { View, Text, StyleSheet, BackHandler, TouchableOpacity, Dimensions } from 'react-native';
 import CategoryItemList from '../../components/Finance/CategoryItemList';
 import { useSelector } from 'react-redux';
 import DatePicker from '../../components/DatePicker';
@@ -9,6 +10,7 @@ const CategoryScreen = props => {
     const [date, setDate] = useState(new Date());
     const [value, setValue] = useState(0);
     const [bookings, setBookings] = useState([]);
+    const [focused, setIsFocused] = useState(false);
     const allCategories = useSelector(state => state.finances.categories);
     const [selectedCategory, setSelectedCategory] = useState(allCategories[0]);
     const categories = selectedCategory ? useSelector(state => state.finances.categories).filter((category) => category.parentId === selectedCategory.id).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0) : [];
@@ -21,6 +23,19 @@ const CategoryScreen = props => {
     useEffect(() => {
         setLatestDate();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            // Do something when the screen is focused
+            console.log('Focus');
+            setIsFocused(true);
+            return () => {
+                // Do something when the screen is unfocused
+                // Useful for cleanup functions
+                setIsFocused(false);
+            };
+        }, [])
+    );
 
     useEffect(() => {
         const backAction = () => {
@@ -42,40 +57,40 @@ const CategoryScreen = props => {
     });
 
     useEffect(() => {
-            let val = 0;
-            const filteredBookings = allBookings.filter((booking) => booking.categoryId === selectedCategory.id && booking.date <= date);
-            filteredBookings.forEach(booking => val += booking.value);
-            allCategories.forEach(cat => {
-                const catBookings = allBookings.filter((booking) => booking.categoryId === cat.id && booking.date <= date);
-                let subCatValue = 0;
-                catBookings.forEach(booking => {
-                    subCatValue += booking.value;
-                });
-                cat.value = Math.round((subCatValue) * 100 + Number.EPSILON) / 100;
+        let val = 0;
+        const filteredBookings = allBookings.filter((booking) => booking.categoryId === selectedCategory.id && booking.date <= date);
+        filteredBookings.forEach(booking => val += booking.value);
+        allCategories.forEach(cat => {
+            const catBookings = allBookings.filter((booking) => booking.categoryId === cat.id && booking.date <= date);
+            let subCatValue = 0;
+            catBookings.forEach(booking => {
+                subCatValue += booking.value;
             });
+            cat.value = Math.round((subCatValue) * 100 + Number.EPSILON) / 100;
+        });
 
-            const setCatValue = (id) => {
-                const subCats = allCategories.filter((cat) => cat.parentId === id);
-                if (subCats.length > 0) {
-                    let subCatValueTotal = 0;
-                    subCats.forEach((cat) => {
-                        setCatValue(cat.id);
-                        subCatValueTotal += cat.value;
-                    });
-                    const parentCat = allCategories.find((cat) => cat.id === id);
-                    if (parentCat) {
-                        parentCat.value += subCatValueTotal;
-                    }
+        const setCatValue = (id) => {
+            const subCats = allCategories.filter((cat) => cat.parentId === id);
+            if (subCats.length > 0) {
+                let subCatValueTotal = 0;
+                subCats.forEach((cat) => {
+                    setCatValue(cat.id);
+                    subCatValueTotal += cat.value;
+                });
+                const parentCat = allCategories.find((cat) => cat.id === id);
+                if (parentCat) {
+                    parentCat.value += subCatValueTotal;
                 }
             }
-            setCatValue(-1);
-            categories.forEach((cat) => {
-                val += cat.value;
-            });
-            setBookings(filteredBookings);
-            setValue(Math.round(val * 100 + Number.EPSILON) / 100);
         }
-    , [date, allBookings, allCategories, selectedCategory]);
+        setCatValue(-1);
+        categories.forEach((cat) => {
+            val += cat.value;
+        });
+        setBookings(filteredBookings);
+        setValue(Math.round(val * 100 + Number.EPSILON) / 100);
+    }
+        , [date, selectedCategory, focused]);
 
     const setLatestDate = () => {
         let today = new Date();
