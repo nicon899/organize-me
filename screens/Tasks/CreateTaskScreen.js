@@ -45,6 +45,7 @@ const CreateTaskScreen = props => {
                 style={styles.dateInput}
                 date={date}
                 setDate={setDate}
+                setTime={true}
             />
 
             <TextItem fontSize={26} style={{ color: 'white', marginHorizontal: '12.5%', width: '75%', marginBottom: 10, fontWeight: 'bold' }}>Deadline:</TextItem>
@@ -52,6 +53,7 @@ const CreateTaskScreen = props => {
                 style={styles.dateInput}
                 date={deadline}
                 setDate={setDeadline}
+                setTime={true}
             />
 
             <View style={{ width: '80%', height: '10%', flexDirection: 'row', justifyContent: 'space-between', alignSelf: 'center', marginTop: 50 }}>
@@ -67,18 +69,10 @@ const CreateTaskScreen = props => {
                 <TouchableOpacity
                     style={{ borderWidth: 1, borderColor: 'green', borderRadius: 5, alignItems: 'center', justifyContent: 'center', padding: 15, width: '30%', height: '50%' }}
                     onPress={() => {
-                        date.setHours(0, 0, 0, 0);
-                        deadline.setHours(0, 0, 0, 0);
-                        const firebase = require("firebase");
-                        if (!firebase.apps.length) {
-                            firebase.initializeApp({
-                                databaseURL: "https://organize-me-private.firebaseio.com/",
-                                projectId: "organize-me-private",
-                            });
-                        }
                         if (props.route.params.editMode) {
                             dispatch(taskActions.editTask(props.route.params.taskId, name, date, deadline, props.route.params.id))
                         } else {
+                            date.setHours(0,0,0,0)
                             dispatch(taskActions.addTask(name, date, deadline, 'Open', props.route.params.id));
                         }
                         props.navigation.goBack();

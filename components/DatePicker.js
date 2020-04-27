@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,11 +10,19 @@ const DatePicker = props => {
     }
 
     const [show, setShow] = useState(false);
+    const [showTimePicker, setShowTimePicker] = useState(false);
+    const [timeChanged, setTimeChanged] = useState(false);
 
     const dateText = ""
         + (props.date.getDate() < 10 ? "0" + props.date.getDate() : props.date.getDate()) + "."
         + (props.date.getMonth() < 9 ? "0" + (props.date.getMonth() + 1) : (props.date.getMonth() + 1)) + "."
-        + props.date.getFullYear()
+        + props.date.getFullYear();
+
+    const getTime = () => {
+        let hours = props.date.getHours().toString();
+        let minutes = props.date.getMinutes().toString();
+        return (hours.length === 1 ? '0' + hours : hours) + ':' + (minutes.length === 1 ? '0' + minutes : minutes);
+    }
 
     return (
         <View style={[styles.datepicker, props.style]}>
@@ -30,8 +38,21 @@ const DatePicker = props => {
 
             <TouchableOpacity style={styles.btn} onPress={() => setShow(true)}>
                 <Ionicons style={{ marginRight: '10%' }} name="md-calendar" size={scaleFontSize(42)} color="#295184" />
-                <Text style={{ color: 'white', fontSize: scaleFontSize(22), fontWeight: 'bold' }} >{dateText}</Text>
+                <View>
+                    {props.setTime && timeChanged && <Text style={{ color: 'grey', fontSize: scaleFontSize(20), fontWeight: 'bold', textAlign: 'center' }} >{getTime()}</Text>}
+                    <Text style={{ color: 'white', fontSize: scaleFontSize(22), fontWeight: 'bold' }} >{dateText}</Text>
+                </View>
             </TouchableOpacity>
+
+            {props.setTime && <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => {
+                    setShowTimePicker(true)
+                    setTimeChanged(true);
+                }}
+            >
+                <Ionicons name="md-time" size={32} color="white" />
+            </TouchableOpacity>}
 
             <TouchableOpacity
                 style={styles.addButton}
@@ -52,6 +73,21 @@ const DatePicker = props => {
                     display="default"
                     onChange={(event, date) => {
                         setShow(false);
+                        if (date != undefined) {
+                            props.setDate(date);
+                        }
+                    }}
+                />
+            )}
+            {showTimePicker && (
+                <DateTimePicker
+                    testID="dateTimePicker"
+                    value={props.date}
+                    mode={'time'}
+                    is24Hour={true}
+                    display="default"
+                    onChange={(event, date) => {
+                        setShowTimePicker(false);
                         if (date != undefined) {
                             props.setDate(date);
                         }

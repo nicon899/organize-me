@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Picker, Modal, Platform, ActivityIndicator } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import TaskItem from '../../components/Tasks/TaskItem';
 import TextItem from '../../components/TextItem';
 import MyPicker from '../../components/Tasks/TaskBoardPicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FlatList } from 'react-native-gesture-handler';
-import * as taskActions from '../../store/actions/tasks';
 
 const TaskLoadingScreen = props => {
-    const [isLoading, setIsLoading] = useState(false);
     const taskBoards = useSelector(state => state.tasks.taskboards);
     const [taskBoard, setTaskBoard] = useState(taskBoards[0]);
     const [sortBy, setSortBy] = useState('Date ASC');
@@ -18,23 +16,6 @@ const TaskLoadingScreen = props => {
     const [showTasksDone, setShowTasksDone] = useState(false);
     const [showDayOfWeek, setShowDayOfWeek] = useState(true);
     const [showFilterModal, setShowFilterModal] = useState(false);
-
-    const dispatch = useDispatch();
-
-    const loadTasks = useCallback(async () => {
-        try {
-            await dispatch(taskActions.fetchTaskData());
-        } catch (err) {
-            console.log('TaskLoadingScreen/loadTask Error: ' + err);
-        }
-    }, [dispatch, setIsLoading]);
-
-    useEffect(() => {
-        setIsLoading(true);
-        loadTasks().then(() => {
-            setIsLoading(false);
-        });
-    }, [dispatch, loadTasks]);
 
     const filter = (task) => {
         switch (task.status) {
@@ -100,134 +81,115 @@ const TaskLoadingScreen = props => {
         }
     }
 
-    useEffect(() => {
-        // if (taskBoards.length <= 0) {
-        //     props.navigation.navigate('CreateTaskBoard', {
-        //         id: taskBoard.id, editMode: false,
-        //     });
-        // }
-    }, []);
-
-
-    if (isLoading) {
-        return (
-            <View style={{ flex: 1, }}>
-                <ActivityIndicator size="large" color='#FF00FF' />
-            </View>
-        );
-    } else {
-        return (
-            <View style={styles.screen}>
-                {Platform.OS != 'web' && <Modal
-                    animationType='fade'
-                    transparent={true}
-                    visible={showFilterModal}>
+    return (
+        <View style={styles.screen}>
+            {Platform.OS != 'web' && <Modal
+                animationType='fade'
+                transparent={true}
+                visible={showFilterModal}>
+                <View style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
                     <View style={{
-                        flex: 1,
-                        alignItems: 'center',
-                        justifyContent: 'center'
+                        backgroundColor: 'white',
+                        width: '60%',
                     }}>
-                        <View style={{
-                            backgroundColor: 'white',
-                            width: '60%',
-                        }}>
-                            <View>
-                                <TouchableOpacity
-                                    style={{ width: '100%', alignItems: 'center', backgroundColor: showTasksOpen ? '#40FFAA80' : '#00000000' }}
-                                    onPress={() => setShowTasksOpen(!showTasksOpen)}>
-                                    <TextItem fontSize={26} >Open</TextItem>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={{ width: '100%', alignItems: 'center', backgroundColor: showTasksInProgress ? '#40FFAA80' : '#00000000' }}
-                                    onPress={() => setShowTasksInProgress(!showTasksInProgress)}>
-                                    <TextItem fontSize={26}>In Progress</TextItem>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={{ width: '100%', alignItems: 'center', backgroundColor: showTasksDone ? '#40FFAA80' : '#00000000' }}
-                                    onPress={() => setShowTasksDone(!showTasksDone)}>
-                                    <TextItem fontSize={26}>Done</TextItem>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={{ width: '100%', alignItems: 'center', backgroundColor: showDayOfWeek ? '#40FFAA80' : '#00000000' }}
-                                    onPress={() => setShowDayOfWeek(!showDayOfWeek)}>
-                                    <TextItem fontSize={26}>Show Day of Week</TextItem>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={{ width: '100%', alignItems: 'flex-end', padding: 10 }}
-                                    onPress={() => {
-                                        setShowFilterModal(false);
-                                    }}>
-                                    <TextItem fontSize={18} style={{ color: 'grey' }}>Close</TextItem>
-                                </TouchableOpacity>
-                            </View>
+                        <View>
+                            <TouchableOpacity
+                                style={{ width: '100%', alignItems: 'center', backgroundColor: showTasksOpen ? '#40FFAA80' : '#00000000' }}
+                                onPress={() => setShowTasksOpen(!showTasksOpen)}>
+                                <TextItem fontSize={26} >Open</TextItem>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ width: '100%', alignItems: 'center', backgroundColor: showTasksInProgress ? '#40FFAA80' : '#00000000' }}
+                                onPress={() => setShowTasksInProgress(!showTasksInProgress)}>
+                                <TextItem fontSize={26}>In Progress</TextItem>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ width: '100%', alignItems: 'center', backgroundColor: showTasksDone ? '#40FFAA80' : '#00000000' }}
+                                onPress={() => setShowTasksDone(!showTasksDone)}>
+                                <TextItem fontSize={26}>Done</TextItem>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ width: '100%', alignItems: 'center', backgroundColor: showDayOfWeek ? '#40FFAA80' : '#00000000' }}
+                                onPress={() => setShowDayOfWeek(!showDayOfWeek)}>
+                                <TextItem fontSize={26}>Show Day of Week</TextItem>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ width: '100%', alignItems: 'flex-end', padding: 10 }}
+                                onPress={() => {
+                                    setShowFilterModal(false);
+                                }}>
+                                <TextItem fontSize={18} style={{ color: 'grey' }}>Close</TextItem>
+                            </TouchableOpacity>
                         </View>
                     </View>
-                </Modal>}
-
-                <View style={styles.header}>
-                    {taskBoards.length > 0 && <MyPicker
-                        style={styles.picker}
-                        data={taskBoards}
-                        presetItemId={taskBoards[0].id}
-                        onValueChange={(taskBoard) => setTaskBoard(taskBoard)}
-                        createBoard={() => {
-                            props.navigation.navigate('CreateTaskBoard', {
-                                editMode: false,
-                            });
-                        }}
-                        editTaskBoard={(taskBoard) => {
-                            props.navigation.navigate('CreateTaskBoard', {
-                                id: taskBoard.id, name: taskBoard.name, editMode: true,
-                            });
-                        }}
-                    />}
-
-                    <TouchableOpacity
-                        style={{ width: '20%' }}
-                        onPress={() => {
-                            setShowFilterModal(true);
-                        }}
-                    >
-                        <TextItem fontSize={20} style={{ color: 'grey' }}>Filter</TextItem>
-                    </TouchableOpacity>
-
                 </View>
-                <View style={styles.configBar}>
-                    <Picker
-                        selectedValue={sortBy}
-                        style={{ height: 50, color: 'grey', flex: 1 }}
-                        onValueChange={(itemValue, itemIndex) => {
-                            setSortBy(itemValue);
-                        }}>
-                        <Picker.Item label="Name ASC" value="Name ASC" />
-                        <Picker.Item label="Name DESC" value="Name DESC" />
-                        <Picker.Item label="Date ASC" value="Date ASC" />
-                        <Picker.Item label="Date DESC" value="Date DESC" />
-                        <Picker.Item label="Deadline ASC" value="Deadline ASC" />
-                        <Picker.Item label="Deadline DESC" value="Deadline DESC" />
-                    </Picker>
-                    <TouchableOpacity
-                        onPress={() => {
-                            props.navigation.navigate('CreateTask', {
-                                id: taskBoard.id, editMode: false,
-                            });
-                        }}
-                    >
-                        <MaterialCommunityIcons name="plus" size={36} color="#00FF00" />
-                    </TouchableOpacity>
-                </View>
-                {taskBoard && <FlatList
-                    data={taskBoard.tasks.sort((a, b) => sort(a, b))}
-                    keyExtractor={item => item.id}
-                    renderItem={itemData => (
-                        <View>
-                            {filter(itemData.item) && <TaskItem key={itemData.item.id} editTask={(task) => editTask(task)} task={itemData.item} taskBoardId={taskBoard.id} showDayOfWeek={showDayOfWeek} />}
-                        </View>
-                    )}
+            </Modal>}
+
+            <View style={styles.header}>
+                {taskBoards.length > 0 && <MyPicker
+                    style={styles.picker}
+                    data={taskBoards}
+                    presetItemId={taskBoards[0].id}
+                    onValueChange={(taskBoard) => setTaskBoard(taskBoard)}
+                    createBoard={() => {
+                        props.navigation.navigate('CreateTaskBoard', {
+                            editMode: false,
+                        });
+                    }}
+                    editTaskBoard={(taskBoard) => {
+                        props.navigation.navigate('CreateTaskBoard', {
+                            id: taskBoard.id, name: taskBoard.name, editMode: true,
+                        });
+                    }}
                 />}
+
+                <TouchableOpacity
+                    style={{ width: '20%' }}
+                    onPress={() => {
+                        setShowFilterModal(true);
+                    }}
+                >
+                    <TextItem fontSize={20} style={{ color: 'grey' }}>Filter</TextItem>
+                </TouchableOpacity>
+
             </View>
-        );
-    }
+            <View style={styles.configBar}>
+                <Picker
+                    selectedValue={sortBy}
+                    style={{ height: 50, color: 'grey', flex: 1 }}
+                    onValueChange={(itemValue, itemIndex) => {
+                        setSortBy(itemValue);
+                    }}>
+                    <Picker.Item label="Name ASC" value="Name ASC" />
+                    <Picker.Item label="Name DESC" value="Name DESC" />
+                    <Picker.Item label="Date ASC" value="Date ASC" />
+                    <Picker.Item label="Date DESC" value="Date DESC" />
+                    <Picker.Item label="Deadline ASC" value="Deadline ASC" />
+                    <Picker.Item label="Deadline DESC" value="Deadline DESC" />
+                </Picker>
+                <TouchableOpacity
+                    onPress={() => {
+                        props.navigation.navigate('CreateTask', {
+                            id: taskBoard.id, editMode: false,
+                        });
+                    }}
+                >
+                    <MaterialCommunityIcons name="plus" size={36} color="#00FF00" />
+                </TouchableOpacity>
+            </View>
+            {taskBoard && <FlatList
+                data={(taskBoard.tasks.filter((task) => filter(task)).sort((a, b) => sort(a, b)))}
+                keyExtractor={item => item.id}
+                renderItem={itemData => (
+                    <TaskItem key={itemData.item.id} editTask={(task) => editTask(task)} task={itemData.item} taskBoardId={taskBoard.id} showDayOfWeek={showDayOfWeek} />
+                )}
+            />}
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({

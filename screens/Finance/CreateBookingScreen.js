@@ -36,6 +36,7 @@ const CreateBookingScreen = props => {
                     style={styles.dateInput}
                     date={date}
                     setDate={setDate}
+                    setTime={false}
                 />
 
                 <View style={styles.valueInput}>

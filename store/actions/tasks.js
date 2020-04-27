@@ -34,12 +34,13 @@ export const fetchTaskData = () => {
                     });
                 });
                 taskboards.push(new TaskBoard(childSnapshot.key, childSnapshot.child('name').val(), tasks));
-                dispatch({
-                    type: SET_TASKDATA,
-                    taskboards: taskboards,
-                });
             });
-        })
+        });
+
+        dispatch({
+            type: SET_TASKDATA,
+            taskboards: taskboards,
+        });
     }
 };
 
@@ -123,8 +124,8 @@ export const addTask = (name, date, deadline, status, taskBoardId) => {
         }
         firebase.database().ref(`${USERNAME}/TaskManager/${taskBoardId}/Tasks`).push({
             name,
-            date,
-            deadline,
+            date: date.toString(),
+            deadline: deadline.toString(),
             status
         }).then((data) => {
             //success callback
@@ -154,8 +155,8 @@ export const editTask = (id, name, date, deadline, taskBoardId) => {
         }
         firebase.database().ref(`${USERNAME}/TaskManager/${taskBoardId}/Tasks/${id}`).update({
             name,
-            date,
-            deadline,
+            date: date.toString(),
+            deadline: deadline.toString(),
         }).then((data) => {
             //success callback
             dispatch({
