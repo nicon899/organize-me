@@ -36,7 +36,6 @@ const CalenderDay = props => {
                 items.push(
                     <TouchableOpacity key={props.tasks[index].id} style={{ borderColor: '#FF0000', borderWidth: late ? 4 : 0, backgroundColor: props.tasks[index].color, flex: 1, borderRadius: 25, justifyContent: 'center', opacity: now.getTime() > day.getTime() ? 0.3 : 1 }}
                         onPress={() => props.editTask(props.tasks[index2])}
-                        autoFocus = {true}
                     >
                         <TextItem fontSize={16} style={{ color: 'white', textAlign: 'center' }} >{props.tasks[index].name}</TextItem>
                         <TextItem fontSize={14} style={{ color: '#CCCCCC', textAlign: 'center', }} >{getTime(props.tasks[index].date) + ' - ' + getTime(new Date(props.tasks[index].date.getTime() + props.tasks[index].duration * 60000))}</TextItem>
@@ -76,19 +75,6 @@ const CalenderDay = props => {
     return (
         <View style={props.style}>
             {events}
-            {/* <FlatList
-                data={props.tasks}
-                keyExtractor={item => item.id}
-                renderItem={itemData => (
-                    <TaskItem
-                        key={itemData.item.id}
-                        editTask={(task) => props.editTask(task)}
-                        task={itemData.item}
-                        taskBoardId={itemData.item.tboardId}
-                        showDayOfWeek={false} />
-                )}
-            /> */}
-
         </View >
     );
 };

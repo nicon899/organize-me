@@ -22,6 +22,9 @@ const CalendarScreen = props => {
     const [editMode, setEditMode] = useState(false);
     const [editParams, setEditParams] = useState({});
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [scrollRef, setScrollRef] = useState(null);
+    const [nowY, setNowY] = useState(0)
+
 
     const allTasks = [];
     tboards.forEach(tboard => {
@@ -129,6 +132,13 @@ const CalendarScreen = props => {
         return (hours.length === 1 ? '0' + hours : hours) + ':' + (minutes.length === 1 ? '0' + minutes : minutes);
     }
 
+    const setScrollViewRef = (element) => {
+        setScrollRef(element);
+        if (element) {
+            element.scrollTo({ x: 0, y: nowY, animated: true });
+        }
+    };
+
     const calenderDayNames = [];
     const dayName = new Date(startDate);
     dayName.setHours(0, 0, 0, 0);
@@ -142,12 +152,17 @@ const CalendarScreen = props => {
     }
 
     const timeElements = [];
-    const now = new Date();
     const day = new Date();
     day.setHours(0, 0, 0, 0);
     for (let i = 0; i < 1440; i += 15) {
         day.setHours(0, i, 0, 0);
-        timeElements.push(<View key={i} style={styles.time}>{day.getMinutes() % 30 === 0 && <Text style={{ color: 'white', textAlign: 'center' }}>{getTime(day)}</Text>}</View>);
+        timeElements.push(
+            <View
+                key={i}
+                style={styles.time}
+            >
+                {day.getMinutes() % 30 === 0 && <Text style={{ color: 'white', textAlign: 'center' }}>{getTime(day)}</Text>}
+            </View>);
     }
 
     const tasksWithoutTime = [];
@@ -257,7 +272,7 @@ const CalendarScreen = props => {
                     <View style={{ flexDirection: 'row', marginLeft: 50 }}>
                         {calenderDayNames}
                     </View>
-                    <ScrollView>
+                    <ScrollView ref={setScrollViewRef}>
                         <View style={{ flexDirection: 'row', marginLeft: 50 }}>
                             {tasksWithoutTime}
                         </View>
