@@ -45,16 +45,16 @@ const TaskItem = props => {
 
     return (
         <TouchableWithoutFeedback
-            onLongPress={() => props.editTask(props.task)}
+            onPress={() => props.editTask(props.task)}
         >
             <View style={styles.screen}>
-                <TouchableOpacity
+                {props.task.status != 'imported' && <TouchableOpacity
                     style={{ marginHorizontal: 10 }}
                     onLongPress={() => changeStatus()}>
-                    {props.task.status === 'Open' && <FontAwesome5 name="tasks" size={scaleFontSize(48)} color="#0080FF" />}
+                    {props.task.status === 'Open' && <FontAwesome5 name="tasks" size={scaleFontSize(48)} color={props.task.duration > 0 ? "#0080FF" : "#FF00FF"} />}
                     {props.task.status === 'InProgress' && <FontAwesome5 name="tasks" size={scaleFontSize(48)} color="yellow" />}
                     {props.task.status === 'Done' && <FontAwesome5 name="tasks" size={scaleFontSize(48)} color="green" />}
-                </TouchableOpacity>
+                </TouchableOpacity>}
                 <TextItem fontSize={20} style={{ color: 'white', flex: 1 }}>{props.task.name}</TextItem>
                 <View style={{ alignItems: 'center', justifyContent: 'center', marginHorizontal: 4 }}>
                     <TextItem fontSize={16} style={{ color: 'grey', width: '100%', fontWeight: 'bold' }}>

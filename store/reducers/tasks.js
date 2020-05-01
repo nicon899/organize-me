@@ -6,7 +6,8 @@ import {
     ADD_TASK,
     DELETE_TASK,
     EDIT_TASK,
-    EDIT_TASK_STATUS
+    EDIT_TASK_STATUS,
+    DELETE_TASKSBOARD_TASKS
 } from '../actions/tasks';
 import Task from '../../models/task';
 import TaskBoard from '../../models/taskboard';
@@ -28,6 +29,8 @@ export default (state = initialState, action) => {
                 action.id,
                 action.name,
                 [],
+                action.color,
+                action.link,
             ));
             return {
                 ...state,
@@ -38,16 +41,25 @@ export default (state = initialState, action) => {
                 ...state,
                 taskboards: [...state.taskboards].filter((tboard) => tboard.id != action.id)
             };
+        case DELETE_TASKSBOARD_TASKS:
+            const taskboardIndexDeleteTasks = updatedTaskboards.findIndex((tboard) => tboard.id === action.id);
+            updatedTaskboards[taskboardIndexDeleteTasks].tasks = [];
+            return {
+                ...state,
+                taskboards: taskboards
+            }
         case EDIT_TASKSBOARD:
             const taskboardIndex = updatedTaskboards.findIndex((tboard) => tboard.id === action.id);
             updatedTaskboards[taskboardIndex].name = action.name;
+            updatedTaskboards[taskboardIndex].link = action.link;
+            updatedTaskboards[taskboardIndex].color = action.color;
             return {
                 ...state,
                 taskboards: taskboards
             };
         case ADD_TASK: {
             const taskboardIndexAddTask = updatedTaskboards.findIndex((tboard) => tboard.id === action.taskBoardId);
-            updatedTaskboards[taskboardIndexAddTask].tasks.push(new Task(action.id, action.name, action.date, action.deadline, action.status));
+            updatedTaskboards[taskboardIndexAddTask].tasks.push(new Task(action.id, action.name, action.date, action.deadline, action.duration, action.status));
             return {
                 ...state,
                 taskboards: updatedTaskboards
@@ -59,6 +71,7 @@ export default (state = initialState, action) => {
             updatedTaskboards[taskboardIndexEditTask].tasks[taskIndex].name = action.name;
             updatedTaskboards[taskboardIndexEditTask].tasks[taskIndex].date = action.date;
             updatedTaskboards[taskboardIndexEditTask].tasks[taskIndex].deadline = action.deadline;
+            updatedTaskboards[taskboardIndexEditTask].tasks[taskIndex].duration = action.duration;
             return {
                 ...state,
                 taskboards: updatedTaskboards

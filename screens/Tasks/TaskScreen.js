@@ -27,6 +27,8 @@ const TaskLoadingScreen = props => {
                 return showTasksInProgress;
             case 'Done':
                 return showTasksDone;
+            case 'imported':
+                return true;
         }
     }
 
@@ -38,13 +40,15 @@ const TaskLoadingScreen = props => {
             date: task.date.toString(),
             deadline: task.deadline.toString(),
             editMode: true,
+            duration: task.duration,
+            withDuration: task.duration > 0,
+            close: false,
         });
     }
 
     useFocusEffect(
         useCallback(() => {
             // Do something when the screen is focused
-            console.log('Focus');
             setIsFocused(true);
             return () => {
                 // Do something when the screen is unfocused
@@ -157,7 +161,7 @@ const TaskLoadingScreen = props => {
                     }}
                     editTaskBoard={(taskBoard) => {
                         props.navigation.navigate('CreateTaskBoard', {
-                            id: taskBoard.id, name: taskBoard.name, editMode: true,
+                            id: taskBoard.id, name: taskBoard.name, color: taskBoard.color, link: taskBoard.link, editMode: true
                         });
                     }}
                 />}
@@ -189,7 +193,7 @@ const TaskLoadingScreen = props => {
                 <TouchableOpacity
                     onPress={() => {
                         props.navigation.navigate('CreateTask', {
-                            id: taskBoard.id, editMode: false,
+                            id: taskBoard.id, editMode: false, withDuration: false, close: false,
                         });
                     }}
                 >

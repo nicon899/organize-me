@@ -10,8 +10,6 @@ const DatePicker = props => {
     }
 
     const [show, setShow] = useState(false);
-    const [showTimePicker, setShowTimePicker] = useState(false);
-    const [timeChanged, setTimeChanged] = useState(false);
 
     const dateText = ""
         + (props.date.getDate() < 10 ? "0" + props.date.getDate() : props.date.getDate()) + "."
@@ -27,7 +25,7 @@ const DatePicker = props => {
     return (
         <View style={[styles.datepicker, props.style]}>
             <TouchableOpacity
-                style={styles.addButton}
+                style={styles.arrow}
                 onPress={() => {
                     let newDate = new Date(props.date.setDate(props.date.getDate() - 1));
                     props.setDate(newDate);
@@ -39,23 +37,12 @@ const DatePicker = props => {
             <TouchableOpacity style={styles.btn} onPress={() => setShow(true)}>
                 <Ionicons style={{ marginRight: '10%' }} name="md-calendar" size={scaleFontSize(42)} color="#295184" />
                 <View>
-                    {props.setTime && timeChanged && <Text style={{ color: 'grey', fontSize: scaleFontSize(20), fontWeight: 'bold', textAlign: 'center' }} >{getTime()}</Text>}
                     <Text style={{ color: 'white', fontSize: scaleFontSize(22), fontWeight: 'bold' }} >{dateText}</Text>
                 </View>
             </TouchableOpacity>
 
-            {props.setTime && <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => {
-                    setShowTimePicker(true)
-                    setTimeChanged(true);
-                }}
-            >
-                <Ionicons name="md-time" size={32} color="white" />
-            </TouchableOpacity>}
-
             <TouchableOpacity
-                style={styles.addButton}
+                style={styles.arrow}
                 onPress={() => {
                     let newDate = new Date(props.date.setDate(props.date.getDate() + 1));
                     props.setDate(newDate);
@@ -79,21 +66,6 @@ const DatePicker = props => {
                     }}
                 />
             )}
-            {showTimePicker && (
-                <DateTimePicker
-                    testID="dateTimePicker"
-                    value={props.date}
-                    mode={'time'}
-                    is24Hour={true}
-                    display="default"
-                    onChange={(event, date) => {
-                        setShowTimePicker(false);
-                        if (date != undefined) {
-                            props.setDate(date);
-                        }
-                    }}
-                />
-            )}
         </View>
     )
 };
@@ -104,11 +76,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 10,
     },
     btn: {
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    arrow:{
+        marginHorizontal: 15
     }
 });
 

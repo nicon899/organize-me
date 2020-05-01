@@ -1,10 +1,7 @@
 import React from 'react';
-import { Platform } from 'react-native'
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-
+import { createMaterialTopTabNavigator, } from '@react-navigation/material-top-tabs';
+import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
 import CategoryScreen from '../screens/Finance/CategoryScreen';
@@ -41,7 +38,6 @@ const TaskStackNavigator = () => {
             screenOptions={{
                 headerShown: false,
             }}>
-            {/* <TaskStack.Screen name="Calendar" component={CalendarScreen} /> */}
             <TaskStack.Screen name="TaskScreen" component={TaskScreen} />
             <TaskStack.Screen name="CreateTaskBoard" component={CreateTaskBoardScreen} />
             <TaskStack.Screen name="CreateTask" component={CreateTaskScreen} />
@@ -49,24 +45,65 @@ const TaskStackNavigator = () => {
     );
 };
 
-const MainTabNavigation = createMaterialTopTabNavigator();
+
+const CalendarStack = createStackNavigator();
+const CalendarStackNavigator = () => {
+    return (
+        <CalendarStack.Navigator
+            screenOptions={{
+                headerShown: false,
+            }}>
+            <CalendarStack.Screen name="CalendarScreen" component={CalendarScreen} />
+            <CalendarStack.Screen name="CreateTask" component={CreateTaskScreen} />
+        </CalendarStack.Navigator>
+    );
+};
+
+const Tab = createMaterialTopTabNavigator();
 export const MainTabNavigator = () => {
-    if (Platform.OS === 'web') {
-        return (
-            <MainTabNavigation.Navigator>
-                <MainTabNavigation.Screen name="Calendar" component={CalendarScreen} />
-                <MainTabNavigation.Screen name="Tasks" component={TaskStackNavigator} />
-            </MainTabNavigation.Navigator>
-        );
-    } else {
-        return (
-            <MainTabNavigation.Navigator>
-                <MainTabNavigation.Screen name="Finance" component={FinanceStackNavigator} />
-                <MainTabNavigation.Screen name="Tasks" component={TaskStackNavigator} />
-                <MainTabNavigation.Screen name="Calendar" component={CalendarScreen} />
-            </MainTabNavigation.Navigator>
-        );
-    }
+    return (
+        <Tab.Navigator
+            initialRouteName="Feed"
+            tabBarPosition='bottom'
+            tabBarOptions={{
+                showIcon: true,
+                showLabel: false,
+                activeTintColor: '#80F00F',
+                inactiveTintColor: '#FFFFFF',
+                indicatorStyle: {backgroundColor: 'transparent'},
+                labelStyle: { fontSize: 12 },
+                style: { backgroundColor: '#000010'},
+            }}
+        >
+            <Tab.Screen
+                name="Feed"
+                component={FinanceStackNavigator}
+                options={{
+                    tabBarIcon: ({ color }) => (
+                        <MaterialIcons name="attach-money" color={color} size={32} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Notifications"
+                component={TaskStackNavigator}
+                options={{
+                    tabBarIcon: ({ color }) => (
+                        <FontAwesome5 name="tasks" color={color} size={28} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={CalendarStackNavigator}
+                options={{
+                    tabBarIcon: ({ color }) => (
+                        <Ionicons name="md-calendar" color={color} size={30} />
+                    ),
+                }}
+            />
+        </Tab.Navigator>
+    );
 };
 
 const MainDrawerNavigator = createStackNavigator();

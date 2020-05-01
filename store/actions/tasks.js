@@ -4,6 +4,7 @@ import TaskBoard from '../../models/taskboard';
 export const SET_TASKDATA = 'SET_TASKDATA';
 export const ADD_TASKBOARD = 'ADD_TASKBOARD';
 export const DELETE_TASKSBOARD = 'DELETE_TASKSBOARD';
+export const DELETE_TASKSBOARD_TASKS = 'DELETE_TASKSBOARD_TASKS';
 export const EDIT_TASKSBOARD = 'EDIT_TASKSBOARD';
 export const ADD_TASK = 'ADD_TASK';
 export const DELETE_TASK = 'DELETE_TASK';
@@ -29,11 +30,11 @@ export const fetchTaskData = () => {
                 firebase.database().ref(`${USERNAME}/TaskManager/${childSnapshot.key}/Tasks`).once('value', function (snapshot) {
                     snapshot.forEach(function (childSnapshot) {
                         tasks.push(
-                            new Task(childSnapshot.key, childSnapshot.child('name').val(), new Date(childSnapshot.child('date').val()), new Date(childSnapshot.child('deadline').val()), childSnapshot.child('status').val()),
+                            new Task(childSnapshot.key, childSnapshot.child('name').val(), new Date(childSnapshot.child('date').val()), new Date(childSnapshot.child('deadline').val()), childSnapshot.child('duration').val(), childSnapshot.child('status').val()),
                         )
                     });
                 });
-                taskboards.push(new TaskBoard(childSnapshot.key, childSnapshot.child('name').val(), tasks));
+                taskboards.push(new TaskBoard(childSnapshot.key, childSnapshot.child('name').val(), tasks, childSnapshot.child('color').val(), childSnapshot.child('link').val()));
             });
         });
 
@@ -44,7 +45,7 @@ export const fetchTaskData = () => {
     }
 };
 
-export const addTaskboard = (name) => {
+export const addTaskboard = (name, color, link) => {
     return dispatch => {
         const firebase = require("firebase");
         if (!firebase.apps.length) {
@@ -55,12 +56,16 @@ export const addTaskboard = (name) => {
         }
         firebase.database().ref(`${USERNAME}/TaskManager`).push({
             name,
+            color,
+            link
         }).then((data) => {
             //success callback
             dispatch({
                 type: ADD_TASKBOARD,
                 id: data.key,
                 name: name,
+                color: color,
+                link: link
             });
         }).catch((error) => {
             //error callback
@@ -68,7 +73,7 @@ export const addTaskboard = (name) => {
     };
 }
 
-export const updateTaskboard = (id, name) => {
+export const updateTaskboard = (id, name, color, link) => {
     return dispatch => {
         const firebase = require("firebase");
         if (!firebase.apps.length) {
@@ -79,12 +84,16 @@ export const updateTaskboard = (id, name) => {
         }
         firebase.database().ref(`${USERNAME}/TaskManager/${id}`).update({
             name: name,
+            color: color,
+            link: link
         }).then((data) => {
             //success callback
             dispatch({
                 type: EDIT_TASKSBOARD,
                 id: id,
                 name: name,
+                color: color,
+                link: link
             });
         }).catch((error) => {
             //error callback
@@ -113,7 +122,28 @@ export const deleteTaskboard = (id) => {
     };
 }
 
-export const addTask = (name, date, deadline, status, taskBoardId) => {
+export const deleteTaskboardTasks = (id) => {
+    return async dispatch => {
+        const firebase = require("firebase");
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                databaseURL: "https://organize-me-private.firebaseio.com/",
+                projectId: "organize-me-private",
+            });
+        }
+        firebase.database().ref(`${USERNAME}/TaskManager/${id}/Tasks`).remove().then((data) => {
+            //success callback
+            dispatch({
+                type: DELETE_TASKSBOARD_TASKS,
+                id: id,
+            });
+        }).catch((error) => {
+            //error callback
+        });
+    };
+}
+
+export const addTask = (name, date, deadline, duration, status, taskBoardId) => {
     return dispatch => {
         const firebase = require("firebase");
         if (!firebase.apps.length) {
@@ -126,6 +156,7 @@ export const addTask = (name, date, deadline, status, taskBoardId) => {
             name,
             date: date.toString(),
             deadline: deadline.toString(),
+            duration: duration,
             status
         }).then((data) => {
             //success callback
@@ -136,6 +167,7 @@ export const addTask = (name, date, deadline, status, taskBoardId) => {
                 name: name,
                 date: date,
                 deadline: deadline,
+                duration: duration,
                 status: status
             });
         }).catch((error) => {
@@ -144,7 +176,7 @@ export const addTask = (name, date, deadline, status, taskBoardId) => {
     };
 }
 
-export const editTask = (id, name, date, deadline, taskBoardId) => {
+export const editTask = (id, name, date, deadline, duration, taskBoardId) => {
     return dispatch => {
         const firebase = require("firebase");
         if (!firebase.apps.length) {
@@ -157,6 +189,7 @@ export const editTask = (id, name, date, deadline, taskBoardId) => {
             name,
             date: date.toString(),
             deadline: deadline.toString(),
+            duration: duration,
         }).then((data) => {
             //success callback
             dispatch({
@@ -166,6 +199,7 @@ export const editTask = (id, name, date, deadline, taskBoardId) => {
                 name: name,
                 date: date,
                 deadline: deadline,
+                duration: duration,
             });
         }).catch((error) => {
             //error callback

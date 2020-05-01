@@ -27,7 +27,6 @@ const CategoryScreen = props => {
     useFocusEffect(
         useCallback(() => {
             // Do something when the screen is focused
-            console.log('Focus');
             setIsFocused(true);
             return () => {
                 // Do something when the screen is unfocused
@@ -89,8 +88,7 @@ const CategoryScreen = props => {
         });
         setBookings(filteredBookings);
         setValue(Math.round(val * 100 + Number.EPSILON) / 100);
-    }
-        , [date, selectedCategory, focused]);
+    }, [date, selectedCategory, focused, allBookings, allCategories]);
 
     const setLatestDate = () => {
         let today = new Date();
