@@ -17,7 +17,7 @@ const CalendarScreen = props => {
     const calendarDays = [];
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
-    const [dateRange, setDateRange] = useState((Platform.OS === 'web' || Dimensions.get('window').width > 1000) ? 5 : 2);
+    const [dateRange, setDateRange] = useState((Platform.OS === 'web' || Dimensions.get('window').width > 1000) ? 7 : 3);
     const [focused, setIsFocused] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [editParams, setEditParams] = useState({});
@@ -39,6 +39,12 @@ const CalendarScreen = props => {
         let day = new Date(startDate.getTime() + (dateRange - 1) * 86400000);
         setEndDate(day);
     }, [startDate, dateRange]);
+
+    useEffect(() => {
+        if (scrollRef) {
+            scrollRef.scrollTo({ x: 0, y: nowY, animated: true });
+        }
+    }, [nowY, focused])
 
     const days = [
         'So',
@@ -134,9 +140,6 @@ const CalendarScreen = props => {
 
     const setScrollViewRef = (element) => {
         setScrollRef(element);
-        if (element) {
-            element.scrollTo({ x: 0, y: nowY, animated: true });
-        }
     };
 
     const calenderDayNames = [];
@@ -153,13 +156,23 @@ const CalendarScreen = props => {
 
     const timeElements = [];
     const day = new Date();
+    const now = new Date();
     day.setHours(0, 0, 0, 0);
     for (let i = 0; i < 1440; i += 15) {
         day.setHours(0, i, 0, 0);
+        const isNow = (now.getTime() > day.getTime() && now.getTime() < day.getTime() + 900000);
         timeElements.push(
             <View
                 key={i}
                 style={styles.time}
+                onLayout={(e) => {
+                    if (isNow) {
+                        console.log('isNOW');
+                        setNowY(+e.nativeEvent.layout.y);
+                    }
+                }
+                }
+
             >
                 {day.getMinutes() % 30 === 0 && <Text style={{ color: 'white', textAlign: 'center' }}>{getTime(day)}</Text>}
             </View>);

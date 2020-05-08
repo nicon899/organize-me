@@ -24,6 +24,7 @@ const CalenderDay = props => {
     let index = 0;
     for (let i = 0; i < 1440; i += 15) {
         day.setHours(0, i, 0, 0);
+        const isNow = (now.getTime() > day.getTime() && now.getTime() < day.getTime() + 900000);
         const items = [];
         let extendEndTimeMax = 0;
         while (index < props.tasks.length) {
@@ -33,8 +34,9 @@ const CalenderDay = props => {
                     late = true;
                 }
                 const index2 = index;
+                const isCurrentEvent = now.getTime() > props.tasks[index].date.getTime() && now.getTime() < props.tasks[index].date.getTime() + (props.tasks[index].duration * 60000);
                 items.push(
-                    <TouchableOpacity key={props.tasks[index].id} style={{ borderColor: '#FF0000', borderWidth: late ? 4 : 0, backgroundColor: props.tasks[index].color, flex: 1, borderRadius: 25, justifyContent: 'center', opacity: now.getTime() > day.getTime() ? 0.3 : 1 }}
+                    <TouchableOpacity key={props.tasks[index].id} style={{ borderColor: late ? '#FF0000' : isCurrentEvent ? '#FFFFFF' : '#00000000', borderWidth: late ? 4 : 1, backgroundColor: props.tasks[index].color, flex: 1, borderRadius: 25, justifyContent: 'center', opacity: now.getTime() > (day.getTime() + (props.tasks[index].duration * 60000)) ? 0.3 : 1 }}
                         onPress={() => props.editTask(props.tasks[index2])}
                     >
                         <TextItem fontSize={16} style={{ color: 'white', textAlign: 'center' }} >{props.tasks[index].name}</TextItem>
@@ -53,7 +55,6 @@ const CalenderDay = props => {
             i += (extendEndTimeMax - 15);
             day.setHours(0, i, 0, 0);
         }
-        const isNow = (now.getTime() > day.getTime() && now.getTime() < day.getTime() + 900000);
         if (items.length > 0) {
             events.push(
                 <View style={[styles.section, { height: extendEndTimeMax > 0 ? (extendEndTimeMax / 15) * HHHEIGHT + (0) : HHHEIGHT }]} key={day.getTime()}>
