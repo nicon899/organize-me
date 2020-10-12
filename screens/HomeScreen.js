@@ -3,9 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'rea
 import { useDispatch } from 'react-redux';
 import * as taskActions from '../store/actions/tasks';
 import * as financeActions from '../store/actions/finances';
-import { MainTabNavigator } from '../navigation/AppNavigator';
-import { NavigationContainer } from '@react-navigation/native';
-
 
 const HomeScreen = props => {
     const [isLoading, setIsLoading] = useState(true);

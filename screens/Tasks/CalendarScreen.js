@@ -25,7 +25,6 @@ const CalendarScreen = props => {
     const [scrollRef, setScrollRef] = useState(null);
     const [nowY, setNowY] = useState(0)
 
-
     const allTasks = [];
     tboards.forEach(tboard => {
         tboard.tasks.forEach(task => {
@@ -39,6 +38,15 @@ const CalendarScreen = props => {
         let day = new Date(startDate.getTime() + (dateRange - 1) * 86400000);
         setEndDate(day);
     }, [startDate, dateRange]);
+
+    useEffect(() => {
+        if (Dimensions.get('window').width > 1000) {
+            const d = new Date();
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+            setStartDate(new Date(d.setDate(diff)));
+        }
+    }, []);
 
     useEffect(() => {
         if (scrollRef) {

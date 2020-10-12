@@ -1,6 +1,6 @@
 import Category from '../../models/category';
 import Booking from '../../models/booking';
-import { useSelector } from 'react-redux';
+import { encryptString, decryptString } from '../SafeStorage';
 
 export const ADD_CATEGORY = 'ADD_CATEGORY';
 export const DELETE_CATEGORY = 'DELETE_CATEGORY';
@@ -12,6 +12,8 @@ export const UPDATE_BOOKING = 'UPDATE_BOOKING';
 export const SET_FINANCES = 'SET_FINANCES';
 
 const USERNAME = 'Nico';
+const PASSWORD = '8paikkaa'
+const FIREBASE_PASSWORD = USERNAME + "UFF123DA" + PASSWORD;
 
 export const fetchFinanceData = () => {
     return async dispatch => {
@@ -27,21 +29,23 @@ export const fetchFinanceData = () => {
 
         firebase.database().ref(`${USERNAME}/Finance/Categories`).once('value', function (snapshot) {
             snapshot.forEach(function (childSnapshot) {
+                const name = decryptString(childSnapshot.child('name').val(), FIREBASE_PASSWORD)
                 categories.push(
-                    new Category(childSnapshot.key, childSnapshot.child('name').val(), childSnapshot.child('index').val(), childSnapshot.child('parentId').val())
+                    new Category(childSnapshot.key, name, childSnapshot.child('index').val(), childSnapshot.child('parentId').val())
                 )
             });
-        });
+        })
 
         firebase.database().ref(`${USERNAME}/Finance/Bookings`).once('value', function (snapshot) {
             snapshot.forEach(function (childSnapshot) {
+                const name = decryptString(childSnapshot.child('name').val(), FIREBASE_PASSWORD)
+                const value = decryptString(childSnapshot.child('value').val(), FIREBASE_PASSWORD)
                 bookings.push(
-                    new Booking(childSnapshot.key, childSnapshot.child('name').val(),
-                        parseFloat(childSnapshot.child('value').val()), childSnapshot.child('details').val(),
+                    new Booking(childSnapshot.key, name, parseFloat(value), childSnapshot.child('details').val(),
                         new Date(childSnapshot.child('date').val()), childSnapshot.child('categoryId').val())
                 )
-            });
-        });
+            })
+        })
 
         dispatch({
             type: SET_FINANCES,
@@ -61,7 +65,7 @@ export const updateCategoryName = (id, name) => {
             });
         }
         firebase.database().ref(`${USERNAME}/Finance/Categories/${id}`).update({
-            name,
+            name: encryptString(name, FIREBASE_PASSWORD),
         }).then((data) => {
             //success callback
             dispatch({
@@ -110,7 +114,7 @@ export const addCategory = (name, index, parentId) => {
         }
 
         firebase.database().ref(`${USERNAME}/Finance/Categories`).push({
-            name,
+            name: encryptString(name, FIREBASE_PASSWORD),
             index,
             parentId
         }).then((data) => {
@@ -191,8 +195,8 @@ export const addBooking = (name, value, details, date, categoryId) => {
         }
 
         firebase.database().ref(`${USERNAME}/Finance/Bookings`).push({
-            name,
-            value,
+            name: encryptString(name, FIREBASE_PASSWORD),
+            value: encryptString(value.toString(), FIREBASE_PASSWORD),
             details,
             date: date.toString(),
             categoryId
@@ -223,8 +227,8 @@ export const updateBooking = (id, name, value, details, date, categoryId) => {
             });
         }
         firebase.database().ref(`${USERNAME}/Finance/Bookings/${id}`).set({
-            name,
-            value,
+            name: encryptString(name, FIREBASE_PASSWORD),
+            value: encryptString(value.toString(), FIREBASE_PASSWORD),
             details,
             date: date.toString(),
             categoryId
