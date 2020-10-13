@@ -3,36 +3,34 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'rea
 import { useDispatch } from 'react-redux';
 import * as taskActions from '../store/actions/tasks';
 import * as financeActions from '../store/actions/finances';
+import { useSelector } from 'react-redux';
 
 const HomeScreen = props => {
-    const [isLoading, setIsLoading] = useState(true);
     const dispatch = useDispatch();
+    const loadedFinanceData = useSelector(state => state.finances.loaded);
 
-    const loadFinance = useCallback(async () => {
+    const loadFinance = useCallback(() => {
         try {
-            await dispatch(financeActions.fetchFinanceData());
+            dispatch(financeActions.fetchFinanceData());
         } catch (err) {
             console.log('TaskLoadingScreen/loadTask Error: ' + err);
         }
-    }, [dispatch, setIsLoading]);
+    }, [dispatch]);
 
-    const loadTasks = useCallback(async () => {
+    const loadTasks = useCallback(() => {
         try {
-            await dispatch(taskActions.fetchTaskData());
+            dispatch(taskActions.fetchTaskData());
         } catch (err) {
             console.log('TaskLoadingScreen/loadTask Error: ' + err);
         }
-    }, [dispatch, setIsLoading]);
+    }, [dispatch]);
 
     useEffect(() => {
-        loadTasks().then(() => {
-            loadFinance().then(() => {
-                setIsLoading(false);
-            })
-        });
+        loadTasks()
+        loadFinance();
     }, [dispatch, loadTasks]);
 
-    if (isLoading) {
+    if (!loadedFinanceData) {
         return (
             <View style={{ flex: 1, }}>
                 <ActivityIndicator size="large" color='#FF00FF' />

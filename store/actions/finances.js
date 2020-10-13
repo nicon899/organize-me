@@ -34,24 +34,24 @@ export const fetchFinanceData = () => {
                     new Category(childSnapshot.key, name, childSnapshot.child('index').val(), childSnapshot.child('parentId').val())
                 )
             });
-        })
-
-        firebase.database().ref(`${USERNAME}/Finance/Bookings`).once('value', function (snapshot) {
-            snapshot.forEach(function (childSnapshot) {
-                const name = decryptString(childSnapshot.child('name').val(), FIREBASE_PASSWORD)
-                const value = decryptString(childSnapshot.child('value').val(), FIREBASE_PASSWORD)
-                bookings.push(
-                    new Booking(childSnapshot.key, name, parseFloat(value), childSnapshot.child('details').val(),
-                        new Date(childSnapshot.child('date').val()), childSnapshot.child('categoryId').val())
-                )
+        }).then(() => {
+            firebase.database().ref(`${USERNAME}/Finance/Bookings`).once('value', function (snapshot) {
+                snapshot.forEach(function (childSnapshot) {
+                    const name = decryptString(childSnapshot.child('name').val(), FIREBASE_PASSWORD)
+                    const value = decryptString(childSnapshot.child('value').val(), FIREBASE_PASSWORD)
+                    bookings.push(
+                        new Booking(childSnapshot.key, name, parseFloat(value), childSnapshot.child('details').val(),
+                            new Date(childSnapshot.child('date').val()), childSnapshot.child('categoryId').val())
+                    )
+                })
+            }).then(() => {
+                dispatch({
+                    type: SET_FINANCES,
+                    categories: categories,
+                    bookings: bookings
+                });
             })
         })
-
-        dispatch({
-            type: SET_FINANCES,
-            categories: categories,
-            bookings: bookings
-        });
     }
 }
 

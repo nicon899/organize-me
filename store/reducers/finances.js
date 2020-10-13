@@ -14,6 +14,7 @@ import Booking from '../../models/booking';
 const initialState = {
   categories: [],
   bookings: [],
+  loaded: false
 };
 
 export default (state = initialState, action) => {
@@ -25,7 +26,8 @@ export default (state = initialState, action) => {
       return {
         ...state,
         bookings: action.bookings,
-        categories: action.categories
+        categories: action.categories,
+        loaded: true
       };
 
     case ADD_CATEGORY:
