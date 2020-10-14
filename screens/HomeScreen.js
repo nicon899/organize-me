@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useEffect, useCallback } from 'react';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { useDispatch } from 'react-redux';
 import * as taskActions from '../store/actions/tasks';
 import * as financeActions from '../store/actions/finances';
@@ -32,8 +32,8 @@ const HomeScreen = props => {
 
     if (!loadedFinanceData) {
         return (
-            <View style={{ flex: 1, }}>
-                <ActivityIndicator size="large" color='#FF00FF' />
+            <View style={styles.screen}>
+                <ActivityIndicator size={250} color='#2244FF80' />
             </View>
         );
     } else {
@@ -55,9 +55,7 @@ const HomeScreen = props => {
 
 const styles = StyleSheet.create({
     screen: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-around'
+        flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'black'
     }
 });
 

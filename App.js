@@ -18,7 +18,7 @@ const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 export default function App() {
   return (
     <Provider store={store}>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={styles.screen}>
         <View style={styles.screen}>
           <StatusBar backgroundColor="black" />
           <NavigationContainer>
@@ -33,5 +33,6 @@ export default function App() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    backgroundColor: 'black'
   }
 });
