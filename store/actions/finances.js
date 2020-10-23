@@ -1,6 +1,7 @@
 import Category from '../../models/category';
 import Booking from '../../models/booking';
 import { encryptString, decryptString } from '../SafeStorage';
+import * as SecureStore from 'expo-secure-store';
 
 export const ADD_CATEGORY = 'ADD_CATEGORY';
 export const DELETE_CATEGORY = 'DELETE_CATEGORY';
@@ -11,12 +12,11 @@ export const DELETE_BOOKING = 'DELETE_BOOKING';
 export const UPDATE_BOOKING = 'UPDATE_BOOKING';
 export const SET_FINANCES = 'SET_FINANCES';
 
-const USERNAME = 'Nico';
-const PASSWORD = '8paikkaa'
-const FIREBASE_PASSWORD = USERNAME + "UFF123DA" + PASSWORD;
-
 export const fetchFinanceData = () => {
     return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+        const FIREBASE_PASSWORD = await SecureStore.getItemAsync('PWD');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -56,7 +56,11 @@ export const fetchFinanceData = () => {
 }
 
 export const updateCategoryName = (id, name) => {
-    return dispatch => {
+    return async dispatch => {
+
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+        const FIREBASE_PASSWORD = await SecureStore.getItemAsync('PWD');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -80,7 +84,9 @@ export const updateCategoryName = (id, name) => {
 }
 
 export const updateCategoryIndex = (id, index) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -104,7 +110,10 @@ export const updateCategoryIndex = (id, index) => {
 }
 
 export const addCategory = (name, index, parentId) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+        const FIREBASE_PASSWORD = await SecureStore.getItemAsync('PWD');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -133,7 +142,9 @@ export const addCategory = (name, index, parentId) => {
 }
 
 export const deleteCategory = (id, categories, bookings) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+        
         const catbookings = bookings.filter((booking) => booking.categoryId === id);
         catbookings.forEach((booking) => {
             dispatch(deleteBooking(booking.id));
@@ -164,7 +175,9 @@ export const deleteCategory = (id, categories, bookings) => {
 }
 
 export const deleteBooking = (id) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -185,7 +198,10 @@ export const deleteBooking = (id) => {
 }
 
 export const addBooking = (name, value, details, date, categoryId) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+        const FIREBASE_PASSWORD = await SecureStore.getItemAsync('PWD');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -218,7 +234,7 @@ export const addBooking = (name, value, details, date, categoryId) => {
 };
 
 export const updateBooking = (id, name, value, details, date, categoryId) => {
-    return dispatch => {
+    return async dispatch => {
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({

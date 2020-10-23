@@ -19,6 +19,12 @@ const TaskLoadingScreen = props => {
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [focused, setIsFocused] = useState(false);
 
+    if(taskBoards.length <= 0){
+        props.navigation.navigate('CreateTaskBoard', {
+            editMode: false,
+        });
+    } 
+
     const filter = (task) => {
         switch (task.status) {
             case 'Open':

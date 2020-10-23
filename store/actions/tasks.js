@@ -1,5 +1,6 @@
 import Task from '../../models/task';
 import TaskBoard from '../../models/taskboard';
+import * as SecureStore from 'expo-secure-store';
 
 export const SET_TASKDATA = 'SET_TASKDATA';
 export const ADD_TASKBOARD = 'ADD_TASKBOARD';
@@ -11,10 +12,10 @@ export const DELETE_TASK = 'DELETE_TASK';
 export const EDIT_TASK = 'EDIT_TASK';
 export const EDIT_TASK_STATUS = "EDIT_TASK_STATUS"
 
-const USERNAME = 'Nico';
-
 export const fetchTaskData = () => {
     return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -46,7 +47,9 @@ export const fetchTaskData = () => {
 };
 
 export const addTaskboard = (name, color, link) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -74,7 +77,9 @@ export const addTaskboard = (name, color, link) => {
 }
 
 export const updateTaskboard = (id, name, color, link) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -102,7 +107,9 @@ export const updateTaskboard = (id, name, color, link) => {
 }
 
 export const deleteTaskboard = (id) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -124,6 +131,8 @@ export const deleteTaskboard = (id) => {
 
 export const deleteTaskboardTasks = (id) => {
     return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -144,7 +153,9 @@ export const deleteTaskboardTasks = (id) => {
 }
 
 export const addTask = (name, date, deadline, duration, status, taskBoardId) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -177,7 +188,9 @@ export const addTask = (name, date, deadline, duration, status, taskBoardId) => 
 }
 
 export const editTask = (id, name, date, deadline, duration, taskBoardId) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -208,7 +221,9 @@ export const editTask = (id, name, date, deadline, duration, taskBoardId) => {
 }
 
 export const editTaskStatus = (id, status, taskBoardId) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -233,7 +248,9 @@ export const editTaskStatus = (id, status, taskBoardId) => {
 }
 
 export const deleteTask = (id, taskBoardId) => {
-    return dispatch => {
+    return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({

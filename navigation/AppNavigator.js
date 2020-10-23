@@ -4,6 +4,7 @@ import { createMaterialTopTabNavigator, } from '@react-navigation/material-top-t
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
+import LogInScreen from '../screens/LogInScreen';
 import CategoryScreen from '../screens/Finance/CategoryScreen';
 import CreateCategoryScreen from '../screens/Finance/CreateCategoryScreen';
 import BookingDetailsScreen from '../screens/Finance/BookingDetailsScreen';
@@ -114,6 +115,7 @@ export const MainNavigator = () => {
                 headerShown: false
             }}
         >
+            <MainDrawerNavigator.Screen name="LogIn" component={LogInScreen} />
             <MainDrawerNavigator.Screen name="Home" component={HomeScreen} />
             <MainDrawerNavigator.Screen name="Main" component={MainTabNavigator} />
         </MainDrawerNavigator.Navigator>

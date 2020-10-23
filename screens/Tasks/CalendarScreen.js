@@ -175,7 +175,6 @@ const CalendarScreen = props => {
                 style={styles.time}
                 onLayout={(e) => {
                     if (isNow) {
-                        console.log('isNOW');
                         setNowY(+e.nativeEvent.layout.y);
                     }
                 }
