@@ -144,7 +144,7 @@ export const addCategory = (name, index, parentId) => {
 export const deleteCategory = (id, categories, bookings) => {
     return async dispatch => {
         const USERNAME = await SecureStore.getItemAsync('USERNAME');
-        
+
         const catbookings = bookings.filter((booking) => booking.categoryId === id);
         catbookings.forEach((booking) => {
             dispatch(deleteBooking(booking.id));
@@ -234,7 +234,11 @@ export const addBooking = (name, value, details, date, categoryId) => {
 };
 
 export const updateBooking = (id, name, value, details, date, categoryId) => {
+
     return async dispatch => {
+        const USERNAME = await SecureStore.getItemAsync('USERNAME');
+        const FIREBASE_PASSWORD = await SecureStore.getItemAsync('PWD');
+        
         const firebase = require("firebase");
         if (!firebase.apps.length) {
             firebase.initializeApp({
