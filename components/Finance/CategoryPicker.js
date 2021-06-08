@@ -26,10 +26,6 @@ const CategoryPicker = props => {
             if (a.label > b.label) { return 1; }
             return 0;
         }).forEach(c => {
-            let preSpace = '';
-            // for (let i = 0; (c.label.match(/\//g) || []).length; i++) {
-            //     preSpace += ' ';
-            // }
             newPickerItems.push(
                 <Picker.Item
                     key={c.id}
