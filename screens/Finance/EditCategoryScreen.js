@@ -43,6 +43,7 @@ const EditCategoryScreen = props => {
                     <View style={styles.nameInputContainer}>
                         <TextInput
                             placeholder='Name'
+                            placeholderTextColor="white"
                             style={styles.input}
                             blurOnSubmit
                             autoCapitalize="none"

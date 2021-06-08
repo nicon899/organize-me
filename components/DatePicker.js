@@ -35,7 +35,7 @@ const DatePicker = props => {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.btn} onPress={() => setShow(true)}>
-                <Ionicons style={{ marginRight: '10%' }} name="md-calendar" size={scaleFontSize(42)} color="#295184" />
+                <Ionicons style={{ marginRight: '10%' }} name="md-calendar" size={scaleFontSize(30)} color="#295184" />
                 <View>
                     <Text style={{ color: 'white', fontSize: scaleFontSize(22), fontWeight: 'bold' }} >{dateText}</Text>
                 </View>
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     arrow:{
-        marginHorizontal: 15
+        marginHorizontal: 5
     }
 });
 

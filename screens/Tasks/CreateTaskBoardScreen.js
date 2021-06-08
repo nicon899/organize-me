@@ -78,6 +78,7 @@ const CreateTaskBoardScreen = props => {
 
             <TextInput
                 placeholder='Name'
+                placeholderTextColor="white"
                 style={styles.input}
                 blurOnSubmit
                 autoCapitalize="none"
@@ -111,6 +112,7 @@ const CreateTaskBoardScreen = props => {
             </View>
             <TextInput
                 placeholder='Color'
+                placeholderTextColor="white"
                 style={[styles.input, { backgroundColor: color }]}
                 blurOnSubmit
                 autoCapitalize="none"

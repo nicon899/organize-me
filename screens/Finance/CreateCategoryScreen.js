@@ -12,6 +12,7 @@ const CreateCategoryScreen = props => {
             <Text style={{color: 'white', marginBottom: 10, fontWeight: 'bold', fontSize: 32}}>Create Category</Text>
             <TextInput
                 placeholder='Name'
+                placeholderTextColor="white"
                 style={styles.input}
                 blurOnSubmit
                 autoCapitalize="none"

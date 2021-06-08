@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Alert, Platform, ToastAndroid, TouchableOpacity, Dimensions } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { View, Text, StyleSheet, TextInput, Alert, Platform, ToastAndroid, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { useDispatch } from 'react-redux';
 import * as financeActions from '../../store/actions/finances';
 import DatePicker from '../../components/DatePicker';
 import { AntDesign } from '@expo/vector-icons';
+import Category from '../../models/category';
+import CategoryPicker from '../../components/Finance/CategoryPicker';
 
 const CreateBookingScreen = props => {
+    const [categoryId, setCategoryId] = useState(props.route.params.categoryId);
     const [name, setName] = useState(props.route.params.editMode ? props.route.params.name : '');
     const [value, setValue] = useState(props.route.params.editMode ? props.route.params.value > 0 ? props.route.params.value.toString() : (props.route.params.value * -1).toString() : '');
     const [details, setDetails] = useState(props.route.params.editMode ? props.route.params.details : '');
     const [date, setDate] = useState(props.route.params.editMode ? new Date(props.route.params.date) : new Date());
     const [isPositive, setIsPositive] = useState(props.route.params.value > 0);
+
     const dispatch = useDispatch();
 
     const scaleFontSize = (fontSize) => {
@@ -18,12 +22,15 @@ const CreateBookingScreen = props => {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: 'black' }}>
+        <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
                 <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: scaleFontSize(42) }}>{props.route.params.editMode ? 'Edit Booking' : 'New Booking'}</Text>
 
+                <CategoryPicker categoryId={categoryId} setCategoryId={setCategoryId} />
+
                 <TextInput
                     placeholder='Name'
+                    placeholderTextColor="white"
                     style={[styles.input, { marginBottom: 25 }]}
                     blurOnSubmit
                     autoCapitalize="none"
@@ -47,6 +54,7 @@ const CreateBookingScreen = props => {
                     </TouchableOpacity>
                     <TextInput
                         style={[styles.input, { width: '50%' }]}
+                        placeholderTextColor="white"
                         placeholder='Amount'
                         blurOnSubmit
                         autoCapitalize="none"
@@ -59,6 +67,7 @@ const CreateBookingScreen = props => {
 
                 <TextInput
                     placeholder='Details'
+                    placeholderTextColor="white"
                     style={[styles.input, { marginBottom: 50 }]}
                     blurOnSubmit
                     autoCapitalize="none"
@@ -86,8 +95,8 @@ const CreateBookingScreen = props => {
                         if (/^[0-9]+(\.[0-9]{1,2})?$/g.test(value)) {
                             date.setHours(0, 0, 0, 0);
                             props.route.params.editMode ?
-                                dispatch(financeActions.updateBooking(props.route.params.id, name, isPositive ? value : -1 * value, details, date, props.route.params.categoryId)) :
-                                dispatch(financeActions.addBooking(name, isPositive ? value : -1 * value, details, date, props.route.params.categoryId));
+                                dispatch(financeActions.updateBooking(props.route.params.id, name, isPositive ? value : -1 * value, details, date, categoryId)) :
+                                dispatch(financeActions.addBooking(name, isPositive ? value : -1 * value, details, date, categoryId));
                             props.navigation.goBack();
                         } else {
                             switch (Platform.OS) {
@@ -104,14 +113,12 @@ const CreateBookingScreen = props => {
                     <Text style={{ color: 'green' }}>OK</Text>
                 </TouchableOpacity>
             </View>
-
-        </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     screen: {
-        maxHeight: '90%',
         alignItems: 'center',
         backgroundColor: 'black',
         paddingTop: 20,

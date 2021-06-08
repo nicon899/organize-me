@@ -43,6 +43,7 @@ const CreateTaskScreen = props => {
 
             <TextInput
                 placeholder='Name'
+                placeholderTextColor="white"
                 style={[styles.input, { marginBottom: 25 }]}
                 blurOnSubmit
                 autoCapitalize="none"

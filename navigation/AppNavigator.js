@@ -99,7 +99,7 @@ export const MainTabNavigator = () => {
                 component={CalendarStackNavigator}
                 options={{
                     tabBarIcon: ({ color }) => (
-                        <Ionicons name="md-calendar" color={color} size={30} />
+                        <Ionicons name="md-calendar" color={color} size={26} />
                     ),
                 }}
             />
